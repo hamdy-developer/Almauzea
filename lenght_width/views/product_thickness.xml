@@ -1,0 +1,43 @@
+<odoo>
+    <data>
+        <record id="id_product_thickness_tree" model="ir.ui.view">
+            <field name="name">product.thickness.tree</field>
+            <field name="model">product.thickness</field>
+            <field name="arch" type="xml">
+                <tree  editable="bottom" >
+                    <field name="name"/>
+                    <field name="price"/>
+                </tree>
+            </field>
+        </record>
+
+
+
+        <record id="id_product_thickness_search" model="ir.ui.view">
+            <field name="name">product.thickness.search</field>
+            <field name="model">product.thickness</field>
+            <field name="arch" type="xml">
+                <search string="Search Purchase Request">
+                    <field name="name"/>
+
+                </search>
+            </field>
+        </record>
+
+        <record id="id_product_thickness_form_action" model="ir.actions.act_window">
+            <field name="name">Product Thickness</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.thickness</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+
+        <menuitem
+                id="menu_product_thickness_action" name="Product Thickness"
+                sequence="3"
+                parent="stock.menu_stock_inventory_control"
+                action="id_product_thickness_form_action"
+        />
+    </data>
+
+</odoo>
