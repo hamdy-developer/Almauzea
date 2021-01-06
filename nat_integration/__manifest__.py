@@ -2,14 +2,13 @@
 
 
 {
-    'name' : 'lenght_width',
+    'name' : 'nat_integration',
     'version' : '1.0',
     'category': 'lenght_width',
-    'depends' : ['base','product','stock'],
+    'depends' : ['base',],
     'data': [
-        "security/ir.model.access.csv",
+        # "security/ir.model.access.csv",
         "views/view.xml",
-        "views/product_thickness.xml",
     ],
     'installable': True,
     'application': False,
