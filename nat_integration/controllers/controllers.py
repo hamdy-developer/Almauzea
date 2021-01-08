@@ -5,14 +5,13 @@ import requests
 import base64
 import json
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
-from datetime import datetime
 
 HEADERS = {'Content-Type': 'application/json'}
 
 
 class NatApi(http.Controller):
 
-    def gey_customer(self ,token):
+    def gey_customer(self, token):
         customer = request.env['res.partner'].sudo().search([('token', '=', token)], limit=1)
         return customer
 
@@ -24,28 +23,18 @@ class NatApi(http.Controller):
             }
         }"""
         if not kw:
-            response = {"result": {"code": 401, "message": "All required data are missing!"}}
+            response = {"code": 401, "message": "All required data are missing!"}
             return response
         else:
             if kw.get('mobile_number', False):
-                custome = request.env['res.partner'].sudo().search([('phone', '=', kw.get('mobile_number', 'False'))],
+                custome = request.env['res.partner'].sudo().search([('phone', '=', kw.get('mobile_number'))],
                                                                    limit=1)
 
                 if custome:
-                    response = {"result": {"code": 200, "message": "Custome already exist", }}
-                    {
-                        "jsonrpc": "2.0",
-                        "id": null,
-                        "result": {
-                            "result": {
-                                "code": 401,
-                                "message": "All required data are missing!"
-                            }
-                        }
-                    }
+                    response = {"code": 200, "message": "Custome already exist", }
                     return response
                 else:
-                    response = {"result": {"code": 404, "message": "Custome Not Exist"}}
+                    response = {"code": 200, "message": "Custome Not Exist"}
                 return response
 
     @http.route('/api/get/erea', type='json', methods=['GET'], auth='public', sitemap=False)
@@ -59,7 +48,6 @@ class NatApi(http.Controller):
 
     @http.route('/api/create/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def create_customer(self, **kw):
-
         """{
                     "params": {
                         "name": "tttttttt",
@@ -74,7 +62,7 @@ class NatApi(http.Controller):
                     }
                 }"""
         if not kw:
-            response = {"result": {"code": 401, "message": "All required data are missing!"}}
+            response =  {"code": 401, "message": "All required data are missing!"}
             return response
         else:
             if kw.get('name', False) and kw.get('password', False):
@@ -94,10 +82,10 @@ class NatApi(http.Controller):
                 }
                 new_customer = request.env['res.partner'].sudo().create(vals)
                 new_customer.sudo().generate_token()
-                response = {"result": {"code": 200, "token": new_customer.token}}
+                response =  {"code": 200, "token": new_customer.token}
                 return response
             else:
-                response = {"result": {"code": 401, "message": "password or name is missing!"}}
+                response = {"code": 401, "message": "password or name is missing!"}
                 return response
 
     @http.route('/api/edit/customer', type='json', methods=['POST'], auth='public', sitemap=False)
@@ -135,16 +123,16 @@ class NatApi(http.Controller):
                     'street2': kw.get('street2'),
                     'password': kw.get('password'),
                 }
-                customer = request.env['res.partner'].sudo().search([('token', '=', kw.get('token'))], limit=1)
+                customer = self.gey_customer(kw.get('token'))
                 if customer:
                     customer.sudo().write(vals)
-                    response = {"result": {"code": 200, "Edit": "done"}}
+                    response = {"code": 200, "Edit": "Done"}
                     return response
                 else:
-                    response = {"result": {"code": 401, "token": "missing"}}
+                    response = {"code": 401, "token": "missing"}
                     return response
             else:
-                response = {"result": {"code": 401, "message": "password or name or token is missing!"}}
+                response = {"code": 401, "message": "password or name or token is missing!"}
                 return response
 
     @http.route('/api/delete/customer', type='json', methods=['POST'], auth='public', sitemap=False)
@@ -155,20 +143,20 @@ class NatApi(http.Controller):
                     }
                 }"""
         if not kw:
-            response = {"result": {"code": 401, "message": "All required data are missing!"}}
+            response = {"code": 401, "message": "All required data are missing!"}
             return response
         else:
             if kw.get('token', False):
                 customer = self.gey_customer(kw.get('token'))
                 if customer:
                     customer.sudo().unlink()
-                    response = {"result": {"code": 200, "delete": "done"}}
+                    response = {"code": 200, "delete": "Done"}
                     return response
                 else:
-                    response = {"result": {"code": 401, "token": "Not Exist"}}
+                    response = {"code": 401, "token": "Not Exist"}
                     return response
             else:
-                response = {"result": {"code": 401, "message": "token is missing!"}}
+                response = {"code": 401, "message": "token is missing!"}
                 return response
 
     @http.route('/api/login/customer', type='json', methods=['POST'], auth='public', sitemap=False)
@@ -180,17 +168,18 @@ class NatApi(http.Controller):
                     }
                 }"""
         if not kw:
-            response = {"result": {"code": 401, "message": "All required data are missing!"}}
+            response = {"code": 401, "message": "All required data are missing!"}
             return response
         else:
             if kw.get('mobile', False) and kw.get('password', False):
-                customer = request.env['res.partner'].sudo().search([('password', '=', kw.get('password')),('phone', '=', kw.get('mobile'))], limit=1)
-                area_data={}
+                customer = request.env['res.partner'].sudo().search(
+                    [('password', '=', kw.get('password')), ('phone', '=', kw.get('mobile'))], limit=1)
+                area_data = {}
                 if customer.area_id:
-                    area_data={'id':customer.area_id.id,'name':customer.area_id.name}
+                    area_data = {'id': customer.area_id.id, 'name': customer.area_id.name}
                 if customer:
                     valus = {
-                        "token":  customer.token,
+                        "token": customer.token,
                         "password": customer.password,
                         "name": customer.name,
                         "shop_name": customer.shop_name,
@@ -201,50 +190,36 @@ class NatApi(http.Controller):
                         "street": customer.street,
                         "street2": customer.street2
                     }
-                    response = {"result": {"code": 200, "delete": valus}}
+                    response = {"code": 200, "data": valus}
                     return response
                 else:
-                    response = {"result": {"code": 401, "message": "Customer Not Exist"}}
+                    response = {"code": 401, "message": "Customer Not Exist"}
                     return response
             else:
-                response = {"result": {"code": 401, "message": "mobile or password is missing!"}}
+                response = {"code": 401, "message": "mobile or password is missing!"}
                 return response
 
-
-
-    @http.route('/api/get/category', type='json', methods=['GET'], auth='public', sitemap=False)
-    def get_category(self, **kw):
-        data=[]
-        categorys = request.env['product.category'].sudo().search([])
-        for category in categorys:
-            data.append({'id':category.id,'name':category.name})
-        response = {"result": {"code": 200, "data":data }}
+    @http.route('/api/get/product', type='json', methods=['POST'], auth='public', sitemap=False)
+    def get_product(self, **kw):
+        """{
+            "params": {
+                "token": "token",
+            }
+        }"""
+        data = []
+        products = request.env['product.product'].sudo().search([])
+        for product in products:
+            data.append(
+                {'id': product.id, 'name': product.name, 'sale_price': product.lst_price, 'picture': product.image_1920,
+                 'category': {'id': product.categ_id.id,'name':product.categ_id.name},'barcode':product.barcode,})
+        response ={"code": 200, "products": data}
         return response
 
-    # @http.route('/api/get/product', type='json', methods=['POST'], auth='public', sitemap=False)
-    # def delete_customer(self, **kw):
-    #     """{
-    #                 "params": {
-    #                     "token":"token",
-    #                 }
-    #             }"""
-    #     if not kw:
-    #         response = {"result": {"code": 401, "message": "All required data are missing!"}}
-    #         return response
-    #     else:
-    #         if kw.get('token', False):
-    #             customer = self.gey_customer(kw.get('token'))
-    #             if customer:
-    #                 products=request.env[]
-    #
-    #                 response = {"result": {"code": 200, "data": "done"}}
-    #                 return response
-    #             else:
-    #                 response = {"result": {"code": 401, "token": "Not Exist"}}
-    #                 return response
-    #         else:
-    #             response = {"result": {"code": 401, "message": "token is missing!"}}
-    #             return response
-
-
-
+    # @http.route('/api/get/category', type='json', methods=['GET'], auth='public', sitemap=False)
+    # def get_category(self, **kw):
+    #     data=[]
+    #     categorys = request.env['product.category'].sudo().search([])
+    #     for category in categorys:
+    #         data.append({'id':category.id,'name':category.name})
+    #     response = {"result": {"code": 200, "data":data }}
+    #     return response
