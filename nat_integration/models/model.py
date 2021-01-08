@@ -30,5 +30,5 @@ class area_area(models.Model):
     _rec_name = 'name'
     _description = 'areas'
 
-    name = fields.Char()
+    name = fields.Char(required=True,)
 

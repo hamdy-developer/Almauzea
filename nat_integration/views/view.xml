@@ -29,7 +29,7 @@
         </field>
     </record>
 
-    <menuitem id="id_erea_menuitem" name="reas" action="id_erea_act" sequence="1"/>
+    <menuitem id="id_erea_menuitem" name="Areas" action="id_erea_act" sequence="1"/>
 
 </odoo>
 
