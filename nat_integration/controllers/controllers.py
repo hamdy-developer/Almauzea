@@ -59,6 +59,7 @@ class NatApi(http.Controller):
 
     @http.route('/api/create/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def create_customer(self, **kw):
+
         """{
                     "params": {
                         "name": "tttttttt",
