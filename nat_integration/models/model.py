@@ -13,7 +13,7 @@ class res_partner(models.Model):
     token = fields.Char(string="Token", required=False, readonly=True)
     shop_name = fields.Char(string="Shop Name", required=False, readonly=False)
     password = fields.Char(string="Password", required=False, readonly=False)
-
+    area_id = fields.Many2one(comodel_name="area.area", string="Area", required=False, )
 
     def generate_token(self):
         for rec in self:
@@ -24,3 +24,11 @@ class res_partner(models.Model):
             rec.generate_token()
         if not bool(re.search(r'\d', rec.token)):
             rec.generate_token()
+
+class area_area(models.Model):
+    _name = 'area.area'
+    _rec_name = 'name'
+    _description = 'areas'
+
+    name = fields.Char()
+

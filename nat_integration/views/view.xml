@@ -10,8 +10,25 @@
                 <field name="password"/>
                 <field name="token" invisible="1"/>
             </xpath>
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="area_id"/>
+            </xpath>
         </field>
     </record>
+
+    <record id="id_erea_act" model="ir.actions.act_window">
+        <field name="name">area</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">area.area</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+          </p><p>
+          </p>
+        </field>
+    </record>
+
+    <menuitem id="id_erea_menuitem" name="Areas" action="id_erea_act" sequence="1"/>
 
 </odoo>
 

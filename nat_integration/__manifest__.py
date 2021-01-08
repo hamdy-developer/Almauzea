@@ -7,7 +7,7 @@
     'category': 'lenght_width',
     'depends' : ['base',],
     'data': [
-        # "security/ir.model.access.csv",
+        "security/ir.model.access.csv",
         "views/view.xml",
     ],
     'installable': True,
