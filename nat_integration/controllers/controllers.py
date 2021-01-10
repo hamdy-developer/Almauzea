@@ -31,10 +31,10 @@ class NatApi(http.Controller):
                                                                    limit=1)
 
                 if custome:
-                    response = {"code": 200, "message": "Custome already exist", }
+                    response = {"code": 200, "message": "Custome already exist","data":True }
                     return response
                 else:
-                    response = {"code": 200, "message": "Custome Not Exist"}
+                    response = {"code": 200, "message": "Custome Not Exist","data":False}
                 return response
 
     @http.route('/api/get/erea', type='json', methods=['GET'], auth='public', sitemap=False)
@@ -43,7 +43,7 @@ class NatApi(http.Controller):
         ereas = request.env['area.area'].sudo().search([])
         for erea in ereas:
             data.append({'id': erea.id, 'name': erea.name})
-        response = {"code": 200, "data": data}
+        response = {"code": 200,  "message": "All areas","data": data}
         return response
 
     @http.route('/api/create/customer', type='json', methods=['POST'], auth='public', sitemap=False)
@@ -82,7 +82,23 @@ class NatApi(http.Controller):
                 }
                 new_customer = request.env['res.partner'].sudo().create(vals)
                 new_customer.sudo().generate_token()
-                response =  {"code": 200, "token": new_customer.token}
+                area_data = {}
+                if new_customer.area_id:
+                    area_data = {'id': new_customer.area_id.id, 'name': new_customer.area_id.name}
+
+                valus = {
+                    "token": new_customer.token,
+                    "password": new_customer.password,
+                    "name": new_customer.name,
+                    "shop_name": new_customer.shop_name,
+                    "email": new_customer.email,
+                    "mobile": new_customer.phone,
+                    "area": area_data,
+                    "zip": new_customer.zip,
+                    "street": new_customer.street,
+                    "street2": new_customer.street2
+                }
+                response =  {"code": 200, "message": "create new customer" ,"data": valus}
                 return response
             else:
                 response = {"code": 401, "message": "password or name is missing!"}
@@ -126,7 +142,7 @@ class NatApi(http.Controller):
                 customer = self.gey_customer(kw.get('token'))
                 if customer:
                     customer.sudo().write(vals)
-                    response = {"code": 200, "Edit": "Done"}
+                    response = {"code": 200, "message": "Edit customer data","data":kw}
                     return response
                 else:
                     response = {"code": 401, "token": "missing"}
@@ -150,7 +166,7 @@ class NatApi(http.Controller):
                 customer = self.gey_customer(kw.get('token'))
                 if customer:
                     customer.sudo().unlink()
-                    response = {"code": 200, "delete": "Done"}
+                    response = {"code": 200, "message": "Customer deleted","data":{}}
                     return response
                 else:
                     response = {"code": 401, "token": "Not Exist"}
@@ -190,7 +206,7 @@ class NatApi(http.Controller):
                         "street": customer.street,
                         "street2": customer.street2
                     }
-                    response = {"code": 200, "data": valus}
+                    response = {"code": 200,  "message": "login","data": valus}
                     return response
                 else:
                     response = {"code": 401, "message": "Customer Not Exist"}
