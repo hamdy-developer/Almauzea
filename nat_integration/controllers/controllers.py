@@ -37,8 +37,8 @@ class NatApi(http.Controller):
                     response = {"code": 200, "message": "Custome Not Exist","data":False}
                 return response
 
-    @http.route('/api/get/erea', type='json', methods=['GET'], auth='public', sitemap=False)
-    def get_erea(self, **kw):
+    @http.route('/api/get/area', type='json', methods=['GET'], auth='public', sitemap=False)
+    def get_area(self, **kw):
         data = []
         ereas = request.env['area.area'].sudo().search([])
         for erea in ereas:
@@ -65,6 +65,11 @@ class NatApi(http.Controller):
             response =  {"code": 401, "message": "All required data are missing!"}
             return response
         else:
+            customer = request.env['res.partner'].sudo().search([ ('phone', '=', kw.get('mobile'))], limit=1)
+            if customer:
+                response = {"code": 400, "message": "Custome already exist", "data": True}
+                return response
+
             if kw.get('name', False) and kw.get('password', False):
                 vals = {
                     'is_company': False,
