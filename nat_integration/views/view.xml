@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='email']" position="after">
                 <field name="shop_name"/>
-                <field name="password"/>
+                <field name="password" />
                 <field name="token" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='vat']" position="after">

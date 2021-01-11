@@ -195,10 +195,52 @@ class NatApi(http.Controller):
             if kw.get('mobile', False) and kw.get('password', False):
                 customer = request.env['res.partner'].sudo().search(
                     [('password', '=', kw.get('password')), ('phone', '=', kw.get('mobile'))], limit=1)
-                area_data = {}
-                if customer.area_id:
-                    area_data = {'id': customer.area_id.id, 'name': customer.area_id.name}
                 if customer:
+                    area_data = {}
+                    if customer.area_id:
+                        area_data = {'id': customer.area_id.id, 'name': customer.area_id.name}
+                    valus = {
+                        "token": customer.token,
+                        "password": customer.password,
+                        "name": customer.name,
+                        "shop_name": customer.shop_name,
+                        "email": customer.email,
+                        "mobile": customer.phone,
+                        "area": area_data,
+                        "zip": customer.zip,
+                        "street": customer.street,
+                        "street2": customer.street2
+                    }
+                    response = {"code": 200,  "message": "login","data": valus}
+                    return response
+                else:
+                    response = {"code": 401, "message": "Customer Not Exist"}
+                    return response
+            else:
+                response = {"code": 401, "message": "mobile or password is missing!"}
+                return response
+
+    @http.route('/api/reset/password', type='json', methods=['POST'], auth='public', sitemap=False)
+    def reset_password(self, **kw):
+        """{
+                    "params": {
+                        "mobile": "0100",
+                        "password": "123",
+                    }
+                }"""
+        print('kwkwkwkwkw',kw)
+        if not kw:
+            response = {"code": 401, "message": "All required data are missing!"}
+            return response
+        else:
+            if kw.get('mobile', False) and kw.get('password', False):
+                customer = request.env['res.partner'].sudo().search(
+                    [('phone', '=', kw.get('mobile'))], limit=1)
+                if customer:
+                    customer.sudo().password = kw.get('password')
+                    area_data = {}
+                    if customer.area_id:
+                        area_data = {'id': customer.area_id.id, 'name': customer.area_id.name}
                     valus = {
                         "token": customer.token,
                         "password": customer.password,
