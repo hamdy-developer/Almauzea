@@ -66,6 +66,10 @@ class NatApi(http.Controller):
             return response
         else:
             customer = request.env['res.partner'].sudo().search([ ('phone', '=', kw.get('mobile'))], limit=1)
+            area = request.env['area.area'].sudo().search([ ('id', '=',int(kw.get('area')))], limit=1)
+            area_id=False
+            if area:
+                area_id=area.id
             if customer:
                 response = {"code": 400, "message": "Custome already exist", "data": True}
                 return response
@@ -79,7 +83,7 @@ class NatApi(http.Controller):
                     'shop_name': kw.get('shop_name'),
                     'email': kw.get('email'),
                     'phone': kw.get('mobile'),
-                    'area_id': int(kw.get('area')),
+                    'area_id': area_id,
                     'zip': kw.get('zip'),
                     'street': kw.get('street'),
                     'street2': kw.get('street2'),
@@ -129,6 +133,10 @@ class NatApi(http.Controller):
             response = {"result": {"code": 401, "message": "All required data are missing!"}}
             return response
         else:
+            area = request.env['area.area'].sudo().search([('id', '=', int(kw.get('area')))], limit=1)
+            area_id = False
+            if area:
+                area_id = area.id
             if kw.get('name', False) and kw.get('password', False) and kw.get('token', False):
                 vals = {
                     'is_company': False,
@@ -138,7 +146,7 @@ class NatApi(http.Controller):
                     'shop_name': kw.get('shop_name'),
                     'email': kw.get('email'),
                     'phone': kw.get('mobile'),
-                    'area_id': int(kw.get('area')),
+                    'area_id': area_id,
                     'zip': kw.get('zip'),
                     'street': kw.get('street'),
                     'street2': kw.get('street2'),
@@ -199,6 +207,7 @@ class NatApi(http.Controller):
                     area_data = {}
                     if customer.area_id:
                         area_data = {'id': customer.area_id.id, 'name': customer.area_id.name}
+                    customer.sudo().generate_token()
                     valus = {
                         "token": customer.token,
                         "password": customer.password,
@@ -228,7 +237,6 @@ class NatApi(http.Controller):
                         "password": "123",
                     }
                 }"""
-        print('kwkwkwkwkw',kw)
         if not kw:
             response = {"code": 401, "message": "All required data are missing!"}
             return response
@@ -237,6 +245,7 @@ class NatApi(http.Controller):
                 customer = request.env['res.partner'].sudo().search(
                     [('phone', '=', kw.get('mobile'))], limit=1)
                 if customer:
+                    customer.sudo().generate_token()
                     customer.sudo().password = kw.get('password')
                     area_data = {}
                     if customer.area_id:
@@ -262,21 +271,21 @@ class NatApi(http.Controller):
                 response = {"code": 401, "message": "mobile or password is missing!"}
                 return response
 
-    @http.route('/api/get/product', type='json', methods=['POST'], auth='public', sitemap=False)
-    def get_product(self, **kw):
-        """{
-            "params": {
-                "token": "token",
-            }
-        }"""
-        data = []
-        products = request.env['product.product'].sudo().search([])
-        for product in products:
-            data.append(
-                {'id': product.id, 'name': product.name, 'sale_price': product.lst_price, 'picture': product.image_1920,
-                 'category': {'id': product.categ_id.id,'name':product.categ_id.name},'barcode':product.barcode,})
-        response ={"code": 200, "products": data}
-        return response
+    # @http.route('/api/get/product', type='json', methods=['POST'], auth='public', sitemap=False)
+    # def get_product(self, **kw):
+    #     """{
+    #         "params": {
+    #             "token": "token",
+    #         }
+    #     }"""
+    #     data = []
+    #     products = request.env['product.product'].sudo().search([])
+    #     for product in products:
+    #         data.append(
+    #             {'id': product.id, 'name': product.name, 'sale_price': product.lst_price, 'picture': product.image_1920,
+    #              'category': {'id': product.categ_id.id,'name':product.categ_id.name},'barcode':product.barcode,})
+    #     response ={"code": 200, "products": data}
+    #     return response
 
     # @http.route('/api/get/category', type='json', methods=['GET'], auth='public', sitemap=False)
     # def get_category(self, **kw):

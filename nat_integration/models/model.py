@@ -1,10 +1,8 @@
 from odoo import api, fields, models, _
+import time, json, requests
 import string
 import random
 import re
-
-
-
 
 
 class res_partner(models.Model):
@@ -19,16 +17,17 @@ class res_partner(models.Model):
         for rec in self:
             rec.token = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase +
                                                string.digits, k=16))
-        partner = self.env['res.partner'].sudo().search([('token', '=', rec.token),('id', '!=', rec.id)])
+        partner = self.env['res.partner'].sudo().search([('token', '=', rec.token), ('id', '!=', rec.id)])
         if partner:
             rec.generate_token()
         if not bool(re.search(r'\d', rec.token)):
             rec.generate_token()
+
+
 
 class area_area(models.Model):
     _name = 'area.area'
     _rec_name = 'name'
     _description = 'areas'
 
-    name = fields.Char(required=True,)
-
+    name = fields.Char(required=True, )
