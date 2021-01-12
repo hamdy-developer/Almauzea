@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='email']" position="after">
                 <field name="shop_name"/>
-                <field name="password" />
+                <field name="password"/>
                 <field name="token" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='vat']" position="after">
@@ -20,16 +20,35 @@
         <field name="name">area</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">area.area</field>
-        <field name
-="view_mode">tree,form</field>
+        <field name="view_mode">tree,form</field>
         <field name="help" type="html">
-          <p class="oe_view_nocontent_create">
-          </p><p>
-          </p>
+            <p class="oe_view_nocontent_create">
+            </p>
+            <p>
+            </p>
         </field>
     </record>
 
     <menuitem id="id_erea_menuitem" name="Areas" action="id_erea_act" sequence="1"/>
-
+    <record id="product_category_view_form_inherit" model="ir.ui.view">
+        <field name="name">product category view form inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div" position="after">
+                <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="id_view_ae_stock_waehouse_form_ept" model="ir.ui.view">
+        <field name="name">stock.ae.warehouse.form.ept</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+            <field name="code" position="after">
+                <field name="area_id"/>
+            </field>
+        </field>
+    </record>
 </odoo>
 

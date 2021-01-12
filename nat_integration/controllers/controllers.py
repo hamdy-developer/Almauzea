@@ -14,6 +14,13 @@ class NatApi(http.Controller):
     def gey_customer(self, token):
         customer = request.env['res.partner'].sudo().search([('token', '=', token)], limit=1)
         return customer
+    def get_subcategory(self,category_id):
+        categorys = request.env['product.category'].sudo().search([('parent_id', '=', category_id.id)])
+        data = []
+        for category in categorys:
+            data.append({'id': category.id, 'name': category.name, 'image': category.image_1920,
+                         'subcategory': self.get_subcategory(category),'parent_id':category_id.id})
+        return data
 
     @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def check_customer(self, **kw):
@@ -271,27 +278,55 @@ class NatApi(http.Controller):
                 response = {"code": 401, "message": "mobile or password is missing!"}
                 return response
 
-    # @http.route('/api/get/product', type='json', methods=['POST'], auth='public', sitemap=False)
-    # def get_product(self, **kw):
-    #     """{
-    #         "params": {
-    #             "token": "token",
-    #         }
-    #     }"""
-    #     data = []
-    #     products = request.env['product.product'].sudo().search([])
-    #     for product in products:
-    #         data.append(
-    #             {'id': product.id, 'name': product.name, 'sale_price': product.lst_price, 'picture': product.image_1920,
-    #              'category': {'id': product.categ_id.id,'name':product.categ_id.name},'barcode':product.barcode,})
-    #     response ={"code": 200, "products": data}
-    #     return response
+    @http.route('/api/get/category', type='json', methods=['POST'], auth='public', sitemap=False)
+    def get_category(self, **kw):
+        """{
+                    "params": {
+                        "token":"token",
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "token is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer=self.gey_customer(kw.get('token'))
+                if customer:
+                    root_categorys=request.env['product.category'].sudo().search([('parent_id','=',False)])
+                    data=[]
+                    for root_category in root_categorys:
 
-    # @http.route('/api/get/category', type='json', methods=['GET'], auth='public', sitemap=False)
-    # def get_category(self, **kw):
-    #     data=[]
-    #     categorys = request.env['product.category'].sudo().search([])
-    #     for category in categorys:
-    #         data.append({'id':category.id,'name':category.name})
-    #     response = {"result": {"code": 200, "data":data }}
-    #     return response
+                        data.append({'id':root_category.id,'name':root_category.name,'image':root_category.image_1920,'subcategory':self.get_subcategory(root_category)})
+                    response = {"code": 200, "message": "All categorys", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
+    @http.route('/api/get/product', type='json', methods=['POST'], auth='public', sitemap=False)
+    def get_product(self, **kw):
+        """{
+                    "params": {
+                        "token":"token",
+                        "category":"category.id"
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "token is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.gey_customer(kw.get('token'))
+                if customer:
+                    products = request.env['product.template'].sudo().search([('categ_id', '=', int(kw.get('category')))])
+                    data = []
+                    for product in products:
+                        data.append(
+                            {'id': product.id, 'name': product.name, 'image': product.image_1920,'Price':product.list_price	,
+                             'Unit_of_Measure': {'id':product.uom_id.id,'name':product.uom_id.name},'brand':{'id':product.brand_id.id,'name':product.brand_id.name}})
+                    response = {"code": 200, "message": "All products", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+

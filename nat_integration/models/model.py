@@ -1,9 +1,26 @@
 from odoo import api, fields, models, _
+from odoo.modules.module import get_module_resource
 import time, json, requests
 import string
 import random
 import re
 
+
+class product_category(models.Model):
+    _inherit = 'product.category'
+
+    @api.model
+    def _default_image(self):
+        image_path = get_module_resource('lunch', 'static/img', 'lunch.png')
+        return base64.b64encode(open(image_path, 'rb').read())
+
+    image_1920 = fields.Image(default=_default_image)
+
+
+class stock_warehouse(models.Model):
+    _inherit = 'stock.warehouse'
+
+    area_id = fields.Many2one(comodel_name="area.area", string="Area", required=False, )
 
 class res_partner(models.Model):
     _inherit = 'res.partner'
@@ -24,10 +41,9 @@ class res_partner(models.Model):
             rec.generate_token()
 
 
-
 class area_area(models.Model):
     _name = 'area.area'
     _rec_name = 'name'
     _description = 'areas'
 
-    name = fields.Char(required=True, )
+    name = fields.Char(required=True )
