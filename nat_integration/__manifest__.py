@@ -5,7 +5,7 @@
     'name' : 'nat_integration',
     'version' : '1.0',
     'category': 'lenght_width',
-    'depends' : ['base','product','stock'],
+    'depends' : ['base','product','stock','product_brand_inventory'],
     'data': [
         "security/ir.model.access.csv",
         "views/view.xml",

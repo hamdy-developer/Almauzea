@@ -11,15 +11,32 @@ HEADERS = {'Content-Type': 'application/json'}
 
 class NatApi(http.Controller):
 
-    def gey_customer(self, token):
+    def get_customer(self, token):
         customer = request.env['res.partner'].sudo().search([('token', '=', token)], limit=1)
         return customer
-    def get_subcategory(self,category_id):
+
+    def get_subcategory(self, category_id):
         categorys = request.env['product.category'].sudo().search([('parent_id', '=', category_id.id)])
         data = []
         for category in categorys:
             data.append({'id': category.id, 'name': category.name, 'image': category.image_1920,
-                         'subcategory': self.get_subcategory(category),'parent_id':category_id.id})
+                         'subcategory': self.get_subcategory(category), 'parent_id': category_id.id})
+        return data
+
+    def best_seller(self):
+        print('000000000000000000')
+        print('ffffffffffffffff', request.env.ref('stock.stock_location_customers').id)
+        stock_quant = request.env['stock.quant'].sudo().search(
+            [('location_id', '=', request.env.ref('stock.stock_location_customers').id)], order="inventory_quantity",
+            limit=10)
+        data = []
+        for stock in stock_quant:
+            print('inventory_quantityinventory_quantityinventory_quantity',stock.inventory_quantity)
+            data.append({'id': stock.product_id.id, 'name': stock.product_id.name, 'image': stock.product_id.image_1920,
+                         'Price': stock.product_id.list_price,'Barcode': stock.product_id.barcode,
+                         'Unit_of_Measure': {'id': stock.product_id.uom_id.id, 'name': stock.product_id.uom_id.name},
+                         'brand': {'id': stock.product_id.brand_id.id, 'name': stock.product_id.brand_id.name}})
+        print('fghgfdatadatadata',data)
         return data
 
     @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
@@ -38,19 +55,22 @@ class NatApi(http.Controller):
                                                                    limit=1)
 
                 if custome:
-                    response = {"code": 200, "message": "Custome already exist","data":True }
+                    response = {"code": 200, "message": "Custome already exist", "data": True}
                     return response
                 else:
-                    response = {"code": 200, "message": "Custome Not Exist","data":False}
+                    response = {"code": 200, "message": "Custome Not Exist", "data": False}
+                return response
+            else:
+                response = {"code": 401, "message": "All required data are missing!"}
                 return response
 
     @http.route('/api/get/area', type='json', methods=['GET'], auth='public', sitemap=False)
-    def get_area(self, **kw):
+    def get_area(self):
         data = []
         ereas = request.env['area.area'].sudo().search([])
         for erea in ereas:
             data.append({'id': erea.id, 'name': erea.name})
-        response = {"code": 200,  "message": "All areas","data": data}
+        response = {"code": 200, "message": "All areas", "data": data}
         return response
 
     @http.route('/api/create/customer', type='json', methods=['POST'], auth='public', sitemap=False)
@@ -69,14 +89,14 @@ class NatApi(http.Controller):
                     }
                 }"""
         if not kw:
-            response =  {"code": 401, "message": "All required data are missing!"}
+            response = {"code": 401, "message": "All required data are missing!"}
             return response
         else:
-            customer = request.env['res.partner'].sudo().search([ ('phone', '=', kw.get('mobile'))], limit=1)
-            area = request.env['area.area'].sudo().search([ ('id', '=',int(kw.get('area')))], limit=1)
-            area_id=False
+            customer = request.env['res.partner'].sudo().search([('phone', '=', kw.get('mobile'))], limit=1)
+            area = request.env['area.area'].sudo().search([('id', '=', int(kw.get('area')))], limit=1)
+            area_id = False
             if area:
-                area_id=area.id
+                area_id = area.id
             if customer:
                 response = {"code": 400, "message": "Custome already exist", "data": True}
                 return response
@@ -114,7 +134,7 @@ class NatApi(http.Controller):
                     "street": new_customer.street,
                     "street2": new_customer.street2
                 }
-                response =  {"code": 200, "message": "create new customer" ,"data": valus}
+                response = {"code": 200, "message": "create new customer", "data": valus}
                 return response
             else:
                 response = {"code": 401, "message": "password or name is missing!"}
@@ -159,10 +179,10 @@ class NatApi(http.Controller):
                     'street2': kw.get('street2'),
                     'password': kw.get('password'),
                 }
-                customer = self.gey_customer(kw.get('token'))
+                customer = self.get_customer(kw.get('token'))
                 if customer:
                     customer.sudo().write(vals)
-                    response = {"code": 200, "message": "Edit customer data","data":kw}
+                    response = {"code": 200, "message": "Edit customer data", "data": kw}
                     return response
                 else:
                     response = {"code": 401, "token": "missing"}
@@ -183,10 +203,10 @@ class NatApi(http.Controller):
             return response
         else:
             if kw.get('token', False):
-                customer = self.gey_customer(kw.get('token'))
+                customer = self.get_customer(kw.get('token'))
                 if customer:
                     customer.sudo().unlink()
-                    response = {"code": 200, "message": "Customer deleted","data":{}}
+                    response = {"code": 200, "message": "Customer deleted", "data": {}}
                     return response
                 else:
                     response = {"code": 401, "token": "Not Exist"}
@@ -227,7 +247,7 @@ class NatApi(http.Controller):
                         "street": customer.street,
                         "street2": customer.street2
                     }
-                    response = {"code": 200,  "message": "login","data": valus}
+                    response = {"code": 200, "message": "login", "data": valus}
                     return response
                 else:
                     response = {"code": 401, "message": "Customer Not Exist"}
@@ -269,7 +289,7 @@ class NatApi(http.Controller):
                         "street": customer.street,
                         "street2": customer.street2
                     }
-                    response = {"code": 200,  "message": "login","data": valus}
+                    response = {"code": 200, "message": "login", "data": valus}
                     return response
                 else:
                     response = {"code": 401, "message": "Customer Not Exist"}
@@ -290,13 +310,14 @@ class NatApi(http.Controller):
             return response
         else:
             if kw.get('token', False):
-                customer=self.gey_customer(kw.get('token'))
+                customer = self.get_customer(kw.get('token'))
                 if customer:
-                    root_categorys=request.env['product.category'].sudo().search([('parent_id','=',False)])
-                    data=[]
+                    root_categorys = request.env['product.category'].sudo().search([('parent_id', '=', False)])
+                    data = []
                     for root_category in root_categorys:
-
-                        data.append({'id':root_category.id,'name':root_category.name,'image':root_category.image_1920,'subcategory':self.get_subcategory(root_category)})
+                        data.append(
+                            {'id': root_category.id, 'name': root_category.name, 'image': root_category.image_1920,
+                             'subcategory': self.get_subcategory(root_category)})
                     response = {"code": 200, "message": "All categorys", "data": data}
                     return response
                 else:
@@ -316,17 +337,39 @@ class NatApi(http.Controller):
             return response
         else:
             if kw.get('token', False):
-                customer = self.gey_customer(kw.get('token'))
+                customer = self.get_customer(kw.get('token'))
                 if customer:
-                    products = request.env['product.template'].sudo().search([('categ_id', '=', int(kw.get('category')))])
+                    products = request.env['product.template'].sudo().search(
+                        [('categ_id', '=', int(kw.get('category')))])
                     data = []
                     for product in products:
                         data.append(
-                            {'id': product.id, 'name': product.name, 'image': product.image_1920,'Price':product.list_price	,
-                             'Unit_of_Measure': {'id':product.uom_id.id,'name':product.uom_id.name},'brand':{'id':product.brand_id.id,'name':product.brand_id.name}})
+                            {'id': product.id, 'name': product.name, 'image': product.image_1920,
+                             'Price': product.list_price,'Barcode': product.barcode,
+                             'Unit_of_Measure': {'id': product.uom_id.id, 'name': product.uom_id.name},
+                             'brand': {'id': product.brand_id.id, 'name': product.brand_id.name}})
                     response = {"code": 200, "message": "All products", "data": data}
                     return response
                 else:
                     response = {"code": 401, "message": "token is missing!"}
                     return response
 
+    @http.route('/api/home/data', type='json', methods=['POST'], auth='public', sitemap=False)
+    def home_data(self, **kw):
+        """{
+                    "params": {
+                        "token":"token",
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "token is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    response = {"code": 200, "message": "Home Data", "data": {"best_seller":self.best_seller()}}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
