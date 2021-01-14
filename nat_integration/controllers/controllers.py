@@ -323,6 +323,32 @@ class NatApi(http.Controller):
                 response = {"code": 401, "message": "mobile or password is missing!"}
                 return response
 
+    @http.route('/api/get/brand', type='json', methods=['POST'], auth='public', sitemap=False)
+    def get_brand(self, **kw):
+        """{
+                    "params": {
+                        "token":"token",
+                        "category":"category_id"
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "token is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    category = request.env['product.category'].sudo().search(
+                        [('id', '=', int(kw.get('category')))])
+                    data = [{"id": 0, "name": "all"}]
+                    for brand in category.brand_ids:
+                        data.append(self.brand_data(brand))
+                    response = {"code": 200, "message": "All brands", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
     @http.route('/api/get/category', type='json', methods=['POST'], auth='public', sitemap=False)
     def get_category(self, **kw):
         """{
@@ -345,32 +371,6 @@ class NatApi(http.Controller):
                         if categorys:
                             data.append(self.category_data(root_category))
                     response = {"code": 200, "message": "All categorys", "data": data}
-                    return response
-                else:
-                    response = {"code": 401, "message": "token is missing!"}
-                    return response
-
-    @http.route('/api/get/brand', type='json', methods=['POST'], auth='public', sitemap=False)
-    def get_brand(self, **kw):
-        """{
-                    "params": {
-                        "token":"token",
-                        "category":"category_id"
-                    }
-                }"""
-        if not kw:
-            response = {"code": 401, "message": "token is missing!"}
-            return response
-        else:
-            if kw.get('token', False):
-                customer = self.get_customer(kw.get('token'))
-                if customer:
-                    category = request.env['product.category'].sudo().search(
-                        [('id', '=', int(kw.get('category')))])
-                    data = [{"id": 0, "name": "all"}]
-                    for brand in category.brand_ids:
-                        data.append(self.brand_data(brand))
-                    response = {"code": 200, "message": "All brands", "data": data}
                     return response
                 else:
                     response = {"code": 401, "message": "token is missing!"}
