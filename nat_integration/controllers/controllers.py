@@ -19,24 +19,49 @@ class NatApi(http.Controller):
         categorys = request.env['product.category'].sudo().search([('parent_id', '=', category_id.id)])
         data = []
         for category in categorys:
-            data.append({'id': category.id, 'name': category.name, 'image': category.image_1920,
-                         'subcategory': self.get_subcategory(category), 'parent_id': category_id.id})
+            data.append(self.category_data(category))
         return data
 
+    def category_data(self, category):
+        base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        image_url = "Null"
+        if category.attachment_id.local_url:
+            image_url = base_path + category.attachment_id.local_url
+        brand = "Null"
+
+        return {'id': category.id, 'name': category.name, 'image': image_url,
+                'subcategory': self.get_subcategory(category), 'parent_id': category.parent_id.id or "Null"}
+
+    def product_data(self, product):
+        base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        image_url = "Null"
+        if product.attachment_id.local_url:
+            image_url = base_path + product.attachment_id.local_url
+        brand = "Null"
+        if product.brand_id:
+            brand = {'id': product.brand_id.id, 'name': product.brand_id.name}
+        Units_of_Measure=[]
+        for uom in product.uom_ids:
+            Units_of_Measure.append({'id':uom.uom_ids.uom_id.id,'name':uom.uom_ids.uom_id.name,'price':uom.uom_ids.price})
+        return {'id': product.id, 'name': product.name,  'image': image_url,
+                'default_Price': product.list_price, 'Barcode': product.barcode,
+                'default_Unit_of_Measure': {'id': product.uom_id.id, 'name': product.uom_id.name},
+                'brand': brand,'Units_of_Measure':Units_of_Measure}
+
+    def brand_data(self, brand):
+        base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        image_url = "Null"
+        if brand.attachment_id.local_url:
+            image_url = base_path + brand.attachment_id.local_url
+        return {'id': brand.id, 'name': brand.name, 'image': image_url, }
+
     def best_seller(self):
-        print('000000000000000000')
-        print('ffffffffffffffff', request.env.ref('stock.stock_location_customers').id)
         stock_quant = request.env['stock.quant'].sudo().search(
             [('location_id', '=', request.env.ref('stock.stock_location_customers').id)], order="inventory_quantity",
             limit=10)
         data = []
         for stock in stock_quant:
-            print('inventory_quantityinventory_quantityinventory_quantity',stock.inventory_quantity)
-            data.append({'id': stock.product_id.id, 'name': stock.product_id.name, 'image': stock.product_id.image_1920,
-                         'Price': stock.product_id.list_price,'Barcode': stock.product_id.barcode,
-                         'Unit_of_Measure': {'id': stock.product_id.uom_id.id, 'name': stock.product_id.uom_id.name},
-                         'brand': {'id': stock.product_id.brand_id.id, 'name': stock.product_id.brand_id.name}})
-        print('fghgfdatadatadata',data)
+            data.append(self.product_data(stock.product_id))
         return data
 
     @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
@@ -55,7 +80,7 @@ class NatApi(http.Controller):
                                                                    limit=1)
 
                 if custome:
-                    response = {"code": 200, "message": "Custome already exist", "data": True}
+                    reorder_linesponse = {"code": 200, "message": "Custome already exist", "data": True}
                     return response
                 else:
                     response = {"code": 200, "message": "Custome Not Exist", "data": False}
@@ -315,10 +340,37 @@ class NatApi(http.Controller):
                     root_categorys = request.env['product.category'].sudo().search([('parent_id', '=', False)])
                     data = []
                     for root_category in root_categorys:
-                        data.append(
-                            {'id': root_category.id, 'name': root_category.name, 'image': root_category.image_1920,
-                             'subcategory': self.get_subcategory(root_category)})
+                        categorys = request.env['product.category'].sudo().search(
+                            [('parent_id', '=', root_category.id)])
+                        if categorys:
+                            data.append(self.category_data(root_category))
                     response = {"code": 200, "message": "All categorys", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
+    @http.route('/api/get/brand', type='json', methods=['POST'], auth='public', sitemap=False)
+    def get_brand(self, **kw):
+        """{
+                    "params": {
+                        "token":"token",
+                        "category":"category_id"
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "token is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    category = request.env['product.category'].sudo().search(
+                        [('id', '=', int(kw.get('category')))])
+                    data = [{"id": 0, "name": "all"}]
+                    for brand in category.brand_ids:
+                        data.append(self.brand_data(brand))
+                    response = {"code": 200, "message": "All brands", "data": data}
                     return response
                 else:
                     response = {"code": 401, "message": "token is missing!"}
@@ -329,7 +381,8 @@ class NatApi(http.Controller):
         """{
                     "params": {
                         "token":"token",
-                        "category":"category.id"
+                        "category":"category.id",
+                        "brand":"brand.id"
                     }
                 }"""
         if not kw:
@@ -339,16 +392,16 @@ class NatApi(http.Controller):
             if kw.get('token', False):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
-                    products = request.env['product.template'].sudo().search(
-                        [('categ_id', '=', int(kw.get('category')))])
+                    if kw.get('brand', False) or  int(kw.get('brand',False)) == 0:
+                        products = request.env['product.template'].sudo().search(
+                            [('categ_id', '=', int(kw.get('category')))])
+                    else:
+                        products = request.env['product.template'].sudo().search(
+                            [('categ_id', '=', int(kw.get('category'))),('brand_id', '=', int(kw.get('brand')))])
                     data = []
                     for product in products:
-                        data.append(
-                            {'id': product.id, 'name': product.name, 'image': product.image_1920,
-                             'Price': product.list_price,'Barcode': product.barcode,
-                             'Unit_of_Measure': {'id': product.uom_id.id, 'name': product.uom_id.name},
-                             'brand': {'id': product.brand_id.id, 'name': product.brand_id.name}})
-                    response = {"code": 200, "message": "All products", "data": data}
+                        data.append(self.product_data(product))
+                    response = {"code": 200, "message": "All products", "data": {"brands": brand, "products": data}}
                     return response
                 else:
                     response = {"code": 401, "message": "token is missing!"}
@@ -368,8 +421,37 @@ class NatApi(http.Controller):
             if kw.get('token', False):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
-                    response = {"code": 200, "message": "Home Data", "data": {"best_seller":self.best_seller()}}
+                    response = {"code": 200, "message": "Home Data", "data": {"best_seller": self.best_seller()}}
                     return response
                 else:
                     response = {"code": 401, "message": "token is missing!"}
                     return response
+
+    # @http.route('/api/add/card', type='json', methods=['POST'], auth='public', sitemap=False)
+    # def add_card(self, **kw):
+    #     """{
+    #                 "params": {
+    #                     "token":"token","product":{"id":"id","quantity":"quantity"}
+    #                 }
+    #             }"""
+    #     if not kw:
+    #         response = {"code": 401, "message": "token is missing!"}
+    #         return response
+    #     else:
+    #         if kw.get('token', False):
+    #             customer = self.get_customer(kwr.get('token'))
+    #             if customer:
+    #                 sale_order=request.env['sale.order'].sudo().search([('partner_id','=',customer.id)])
+    #                 if sale_order:
+    #                     pass
+    #                 else:
+    #                     sale_order = request.env['sale.order'].sudo().create({
+    #                         "partner_id":customer.id,
+    #                         "order_line":,
+    #                     })
+    #
+    #                 response = {"code": 200, "message": "Home Data", "data": {"best_seller": self.best_seller()}}
+    #                 return response
+    #             else:
+    #                 response = {"code": 401, "message": "token is missing!"}
+    #                 return response

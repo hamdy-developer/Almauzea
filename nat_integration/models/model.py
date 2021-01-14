@@ -5,17 +5,14 @@ import string
 import random
 import re
 
+class product_Unit_of_Measure(models.Model):
+    _name = 'product.unit_of_measure'
+    _rec_name = 'uom_id'
+    _description = 'New Description'
 
-class product_category(models.Model):
-    _inherit = 'product.category'
-
-    @api.model
-    def _default_image(self):
-        image_path = get_module_resource('lunch', 'static/img', 'lunch.png')
-        return base64.b64encode(open(image_path, 'rb').read())
-
-    image_1920 = fields.Image(default=_default_image)
-
+    uom_id = fields.Many2one('uom.uom', string='Unit of Measure',  required=True)
+    price = fields.Float(string="Price",  required=True, )
+    product_id = fields.Many2one(comodel_name="product.template", string="", required=True, )
 
 class stock_warehouse(models.Model):
     _inherit = 'stock.warehouse'
@@ -40,10 +37,77 @@ class res_partner(models.Model):
         if not bool(re.search(r'\d', rec.token)):
             rec.generate_token()
 
-
 class area_area(models.Model):
     _name = 'area.area'
     _rec_name = 'name'
     _description = 'areas'
 
-    name = fields.Char(required=True )
+    name = fields.Char(required=True)
+
+class sale_order(models.Model):
+    _inherit = 'sale.order'
+
+    @api.constrains('order_line')
+    def check_cancel(self):
+        for rec in self:
+            if len(rec.order_line.ids) == 0:
+                rec.state = 'cancel'
+
+class product_template(models.Model):
+    _inherit = 'product.template'
+
+    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=True, )
+    uom_ids = fields.One2many(comodel_name="product.unit_of_measure", inverse_name="product_id", string="", required=False, )
+
+    @api.constrains("image_1920")
+    def attach_image_1920(self):
+        for rec in self:
+            if not rec.attachment_id:
+                attachment = self.env['ir.attachment'].sudo().create(
+                    {"name": rec.name, "type": 'binary', 'datas': rec.image_1920})
+                rec.attachment_id=attachment.id
+            else:
+                rec.attachment_id.datas=rec.image_1920
+
+class product_brand(models.Model):
+    _inherit = 'product.brand'
+
+    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=True, )
+
+
+    @api.constrains("brand_image")
+    def attachbrand_image(self):
+        for rec in self:
+            if not rec.attachment_id:
+                attachment = self.env['ir.attachment'].sudo().create(
+                    {"name": rec.name, "type": 'binary', 'datas': rec.brand_image})
+                rec.attachment_id=attachment.id
+            else:
+                rec.attachment_id.datas=rec.brand_image
+
+class product_template(models.Model):
+    _inherit = 'product.category'
+
+    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=True, )
+    image_1920 = fields.Image("Image", compute="get_image",readonly=False)
+    brand_ids = fields.Many2many(comodel_name="product.brand", string="Brands" )
+
+
+
+    @api.depends("attachment_id")
+    def get_image(self):
+        print('get_imageget_imageget_imageget_image')
+        for rec in self:
+            if rec.attachment_id:
+                print("rec.attachment_id.datasrec.attachment_id.datas",rec.attachment_id.datas)
+                rec.image_1920=rec.attachment_id.datas
+
+    @api.onchange("image_1920")
+    def attach_image_1920(self):
+        for rec in self:
+            if not rec.attachment_id:
+                attachment = self.env['ir.attachment'].sudo().create(
+                    {"name": rec.name, "type": 'binary', 'datas': rec.image_1920})
+                rec.attachment_id=attachment.id
+            else:
+                rec.attachment_id.datas=rec.image_1920

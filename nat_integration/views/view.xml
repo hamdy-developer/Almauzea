@@ -36,7 +36,12 @@
         <field name="inherit_id" ref="product.product_category_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//div" position="after">
-                <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"/>
+                <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"
+                       force_save="1"/>
+                <field name="attachment_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="brand_ids" widget="many2many_tags"/>
             </xpath>
         </field>
     </record>
@@ -50,5 +55,26 @@
             </field>
         </field>
     </record>
+
+    <record id="id_product_template_only_form_view_inh" model="ir.ui.view">
+        <field name="name">product.template.product.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Price of unit">
+                    <group>
+                        <field name="uom_ids">
+                            <tree editable="top">
+                                <field name="uom_id"/>
+                                <field name="price"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>
 
