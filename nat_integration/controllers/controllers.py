@@ -411,7 +411,7 @@ class NatApi(http.Controller):
             if kw.get('token', False):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
-                    if kw.get('brand', False) or int(kw.get('brand', False)) == 0:
+                    if bool(kw.get('brand', False))!=True or int(kw.get('brand', False)) == 0:
                         products = request.env['product.template'].sudo().search(
                             [('categ_id', '=', int(kw.get('category')))])
                     else:
@@ -541,7 +541,6 @@ class NatApi(http.Controller):
         """{
                     "params": {
                         "token":"token",
-                        "sale_oedr_id":"sale_oedr.id"
                     }
                 }"""
         if not kw:
@@ -607,7 +606,10 @@ class NatApi(http.Controller):
                         [('id', '=', int(kw.get('sale_order')))],limit=1)
                     data = {}
                     if sale_order:
-                        order=sale_order.sudo.copy()
+                        order= request.env['sale.order'].sudo().create({
+                            "partner_id": sale_order.partner_id.id,
+                            "order_line": sale_order.order_line.ids
+                        })
                         data=self.sale_order_data(order)
                     response = {"code": 200, "message": "order data", "data": data}
                     return response
