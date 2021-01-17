@@ -535,6 +535,34 @@ class NatApi(http.Controller):
                     response = {"code": 401, "message": "token is missing!"}
                     return response
 
+    @http.route('/api/sale/order/confirm', type='json', methods=['POST'], auth='public', sitemap=False)
+    def sale_order_confirm(self, **kw):
+        """{
+                    "params": {
+                        "token":"token",
+                        "sale_oedr_id":"sale_oedr.id"
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "All data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    sale_order = request.env['sale.order'].sudo().search(
+                            [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+
+                    data = {}
+                    if sale_order:
+                        sale_order.sudo().action_confirm()
+                        data = self.sale_order_data(sale_order)
+                    response = {"code": 200, "message": "sale order data", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
     @http.route('/api/sale/order/history', type='json', methods=['POST'], auth='public', sitemap=False)
     def order_history(self, **kw):
         """{"params": {
