@@ -109,7 +109,7 @@ class NatApi(http.Controller):
                 return response
 
     @http.route('/api/get/area', type='json', methods=['GET'], auth='public', sitemap=False)
-    def get_area(self):
+    def get_area(self,**kw):
         data = []
         ereas = request.env['area.area'].sudo().search([])
         for erea in ereas:
