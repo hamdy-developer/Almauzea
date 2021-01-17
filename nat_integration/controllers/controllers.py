@@ -419,7 +419,7 @@ class NatApi(http.Controller):
                     data = []
                     for product in products:
                         data.append(self.product_data(product))
-                    response = {"code": 200, "message": "All products", "data": {"brands": brand, "products": data}}
+                    response = {"code": 200, "message": "All products", "data": data}
                     return response
                 else:
                     response = {"code": 401, "message": "token is missing!"}
