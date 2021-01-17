@@ -43,9 +43,9 @@ class NatApi(http.Controller):
         units_of_measure = []
         for uom in product.uom_ids:
             units_of_measure.append(
-                {'id': uom.uom_ids.uom_id.id, 'name': uom.uom_ids.uom_id.name, 'price': uom.uom_ids.price})
+                {'id': uom.uom_ids.uom_id.id, 'name': uom.uom_ids.uom_id.name, 'price': round(uom.uom_ids.price,2)})
         return {'id': product.id, 'name': product.name, 'image': image_url,
-                'default_Price': product.list_price, 'Barcode': product.barcode,
+                'default_Price': round(product.list_price,2), 'Barcode': product.barcode,
                 'default_Unit_of_Measure': {'id': product.uom_id.id, 'name': product.uom_id.name},
                 'brand': brand, 'units_of_measure': units_of_measure}
 
@@ -74,14 +74,14 @@ class NatApi(http.Controller):
                 image_url = base_path + line.product_id.attachment_id.local_url
             line_data.append({"id": line.id,
                               "product": {"id": line.product_id.id, "name": line.product_id.name,
-                                          "image": image_url}, "price": line.product_uom_qty,
+                                          "image": image_url}, "quantity": line.product_uom_qty,
                               "units_of_measure": {"id": line.product_uom.id,
                                                    "name": line.product_uom.name},
                               "subtotal": line.price_subtotal, })
 
         return  {"id": sale_order.id, "name": sale_order.name, "date": sale_order.date_order,
-                "total_untax": sale_order.amount_untaxed, "tax": sale_order.amount_tax,
-                "total": sale_order.amount_total, "lines": line_data}
+                "total_untax": round(sale_order.amount_untaxed,2), "tax": round(sale_order.amount_tax,2),
+                "total": round(sale_order.amount_total,2), "lines": line_data}
 
     @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def check_customer(self, **kw):
