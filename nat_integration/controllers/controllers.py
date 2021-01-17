@@ -83,7 +83,7 @@ class NatApi(http.Controller):
                 "total_untax": round(sale_order.amount_untaxed,2), "tax": round(sale_order.amount_tax,2),
                 "total": round(sale_order.amount_total,2), "lines": line_data}
 
-    @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
+    @http.route('/api/check/customer', type='json', methods=['GET'], auth='public', sitemap=False)
     def check_customer(self, **kw):
         """{
             "params": {
