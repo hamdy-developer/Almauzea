@@ -108,7 +108,7 @@ class NatApi(http.Controller):
                 response = {"code": 401, "message": "All required data are missing!"}
                 return response
 
-    @http.route('/api/get/area', type='json', methods=['GET'], auth='public', sitemap=False)
+    @http.route('/api/get/area', type='json', methods=['POST'], auth='public', sitemap=False)
     def get_area(self,**kw):
         data = []
         ereas = request.env['area.area'].sudo().search([])
