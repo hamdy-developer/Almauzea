@@ -12,6 +12,7 @@
             </xpath>
             <xpath expr="//field[@name='vat']" position="after">
                 <field name="area_id"/>
+                <field name="is_verified"/>
             </xpath>
         </field>
     </record>

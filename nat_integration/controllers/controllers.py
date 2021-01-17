@@ -616,3 +616,23 @@ class NatApi(http.Controller):
                 else:
                     response = {"code": 401, "message": "token is missing!"}
                     return response
+
+    @http.route('/api/customer/verified', type='json', methods=['POST'], auth='public', sitemap=False)
+    def customer_verified(self, **kw):
+        """{"params": {
+                        "token":"token",
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "all data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                data={"is_verified":customer.is_verified}
+                if customer:
+                    response = {"code": 200, "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response

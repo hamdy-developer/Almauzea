@@ -26,7 +26,7 @@ class res_partner(models.Model):
     shop_name = fields.Char(string="Shop Name", required=False, readonly=False)
     password = fields.Char(string="Password", required=False, readonly=False)
     area_id = fields.Many2one(comodel_name="area.area", string="Area", required=False, )
-
+    is_verified = fields.Boolean(string="Verified",  )
     def generate_token(self):
         for rec in self:
             rec.token = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase +
