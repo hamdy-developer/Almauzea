@@ -40,13 +40,14 @@ class NatApi(http.Controller):
         brand = "Null"
         if product.brand_id:
             brand = {'id': product.brand_id.id, 'name': product.brand_id.name}
-        Units_of_Measure=[]
+        units_of_measure = []
         for uom in product.uom_ids:
-            Units_of_Measure.append({'id':uom.uom_ids.uom_id.id,'name':uom.uom_ids.uom_id.name,'price':uom.uom_ids.price})
-        return {'id': product.id, 'name': product.name,  'image': image_url,
+            units_of_measure.append(
+                {'id': uom.uom_ids.uom_id.id, 'name': uom.uom_ids.uom_id.name, 'price': uom.uom_ids.price})
+        return {'id': product.id, 'name': product.name, 'image': image_url,
                 'default_Price': product.list_price, 'Barcode': product.barcode,
                 'default_Unit_of_Measure': {'id': product.uom_id.id, 'name': product.uom_id.name},
-                'brand': brand,'Units_of_Measure':Units_of_Measure}
+                'brand': brand, 'units_of_measure': units_of_measure}
 
     def brand_data(self, brand):
         base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
@@ -63,6 +64,23 @@ class NatApi(http.Controller):
         for stock in stock_quant:
             data.append(self.product_data(stock.product_id))
         return data
+
+    def sale_order_data(self, sale_order):
+        for line in sale_order.order_line:
+            base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            image_url = "Null"
+            if line.product_id.attachment_id.local_url:
+                image_url = base_path + line.product_id.attachment_id.local_url
+            line_data.append({"id": line.id,
+                              "product": {"id": line.product_id.id, "name": line.product_id.name,
+                                          "image": image_url}, "price": line.product_uom_qty,
+                              "units_of_measure": {"id": line.product_uom.id,
+                                                   "name": line.product_uom.name},
+                              "subtotal": line.price_subtotal, })
+
+        return  {"id": sale_order.id, "name": sale_order.name, "date": sale_order.date_order,
+                "total_untax": sale_order.amount_untaxed, "tax": sale_order.amount_tax,
+                "total": sale_order.amount_total, "lines": line_data}
 
     @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def check_customer(self, **kw):
@@ -392,12 +410,12 @@ class NatApi(http.Controller):
             if kw.get('token', False):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
-                    if kw.get('brand', False) or  int(kw.get('brand',False)) == 0:
+                    if kw.get('brand', False) or int(kw.get('brand', False)) == 0:
                         products = request.env['product.template'].sudo().search(
                             [('categ_id', '=', int(kw.get('category')))])
                     else:
                         products = request.env['product.template'].sudo().search(
-                            [('categ_id', '=', int(kw.get('category'))),('brand_id', '=', int(kw.get('brand')))])
+                            [('categ_id', '=', int(kw.get('category'))), ('brand_id', '=', int(kw.get('brand')))])
                     data = []
                     for product in products:
                         data.append(self.product_data(product))
@@ -427,31 +445,143 @@ class NatApi(http.Controller):
                     response = {"code": 401, "message": "token is missing!"}
                     return response
 
-    # @http.route('/api/add/card', type='json', methods=['POST'], auth='public', sitemap=False)
-    # def add_card(self, **kw):
-    #     """{
-    #                 "params": {
-    #                     "token":"token","product":{"id":"id","quantity":"quantity"}
-    #                 }
-    #             }"""
-    #     if not kw:
-    #         response = {"code": 401, "message": "token is missing!"}
-    #         return response
-    #     else:
-    #         if kw.get('token', False):
-    #             customer = self.get_customer(kwr.get('token'))
-    #             if customer:
-    #                 sale_order=request.env['sale.order'].sudo().search([('partner_id','=',customer.id)])
-    #                 if sale_order:
-    #                     pass
-    #                 else:
-    #                     sale_order = request.env['sale.order'].sudo().create({
-    #                         "partner_id":customer.id,
-    #                         "order_line":,
-    #                     })
-    #
-    #                 response = {"code": 200, "message": "Home Data", "data": {"best_seller": self.best_seller()}}
-    #                 return response
-    #             else:
-    #                 response = {"code": 401, "message": "token is missing!"}
-    #                 return response
+    @http.route('/api/add/card', type='json', methods=['POST'], auth='public', sitemap=False)
+    def add_card(self, **kw):
+        """{
+                    "params": {
+                        "token":"token",
+                        "product":{
+                        "id":"id",
+                        "quantity":"quantity",
+                        "units_of_measure":"uom.id"}
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "token is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    sale_order = request.env['sale.order'].sudo().search(
+                        [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+                    if sale_order:
+                        sale_order_line = request.env['sale.order.line'].sudo().search(
+                            [('order_id', '=', sale_order.id), ('product_id', '=', int(kw.get('product').get("id")))],
+                            limit=1)
+                        if sale_order_line:
+                            if int(kw.get('product').get("quantity")) == 0:
+                                sale_order_line.sudo().unlink()
+                                sale_order.sudo().check_cancel()
+                            else:
+                                sale_order_line.product_uom_qty = int(kw.get('product').get("quantity"))
+                                sale_order_line.product_uom = int(kw.get('product').get("units_of_measure"))
+
+                        elif int(kw.get('product').get("quantity")) != 0:
+                            sale_order.order_line = [(0, 0,
+                                                      {
+                                                          "product_id": int(kw.get('product').get("id")) or False,
+                                                          "product_uom_qty": int(
+                                                              kw.get('product').get("quantity")) or False,
+                                                          "product_uom": int(
+                                                              kw.get('product').get("units_of_measure")) or False,
+                                                      })]
+                    elif int(kw.get('product').get("quantity")) != 0:
+                        sale_order = request.env['sale.order'].sudo().create({
+                            "partner_id": customer.id,
+                            "order_line": [(0, 0,
+                                            {
+                                                "product_id": int(kw.get('product').get("id")) or False,
+                                                "product_uom_qty": int(kw.get('product').get("quantity")) or False,
+                                                "product_uom": int(
+                                                    kw.get('product').get("units_of_measure")) or False,
+                                            })]
+                        })
+                    response = {"code": 200, "message": "Add Card",
+                                "data": {"sale_order": {'id': sale_order.id, "name": sale_order.name}}}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
+    @http.route('/api/sale/order/details', type='json', methods=['POST'], auth='public', sitemap=False)
+    def sale_order_details(self, **kw):
+        """{
+                    "params": {
+                        "token":"token",
+                        "sale_oedr_id":"sale_oedr.id"
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "All data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    if kw.get('sale_oedr_id', False):
+                        sale_order = request.env['sale.order'].sudo().search(
+                            [('id', '=', int(kw.get('sale_oedr_id')))], limit=1)
+                    else:
+                        sale_order = request.env['sale.order'].sudo().search(
+                            [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+
+                    data = {}
+                    if sale_order:
+                        data = self.sale_order_data(sale_order)
+                    response = {"code": 200, "message": "sale order data", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
+    @http.route('/api/sale/order/history', type='json', methods=['POST'], auth='public', sitemap=False)
+    def order_history(self, **kw):
+        """{"params": {
+                        "token":"token",
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "all data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    sale_orders = request.env['sale.order'].sudo().search(
+                        [('partner_id', '=', customer.id), ('state', 'in', ['sale'])])
+                    data = []
+                    for sale_order in sale_orders:
+                        data.append( self.sale_order_data(sale_order))
+                    response = {"code": 200, "message": "order history", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
+    @http.route('/api/sale/order/reorder', type='json', methods=['POST'], auth='public', sitemap=False)
+    def order_reorder(self, **kw):
+        """{"params": {
+                        "token":"token",
+                        "sale_order":"sale_order_id",
+
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "all data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    sale_order = request.env['sale.order'].sudo().search(
+                        [('id', '=', int(kw.get('sale_order')))],limit=1)
+                    data = {}
+                    if sale_order:
+                        order=sale_order.sudo.copy()
+                        data=self.sale_order_data(order)
+                    response = {"code": 200, "message": "order data", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response

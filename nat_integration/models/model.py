@@ -47,6 +47,7 @@ class area_area(models.Model):
 class sale_order(models.Model):
     _inherit = 'sale.order'
 
+
     @api.constrains('order_line')
     def check_cancel(self):
         for rec in self:
