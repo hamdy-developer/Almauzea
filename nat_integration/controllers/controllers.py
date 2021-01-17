@@ -83,7 +83,7 @@ class NatApi(http.Controller):
                 "total_untax": round(sale_order.amount_untaxed,2), "tax": round(sale_order.amount_tax,2),
                 "total": round(sale_order.amount_total,2), "lines": line_data}
 
-    @http.route('/api/check/customer', type='json', methods=['GET'], auth='public', sitemap=False)
+    @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def check_customer(self, **kw):
         """{
             "params": {
@@ -108,7 +108,7 @@ class NatApi(http.Controller):
                 response = {"code": 401, "message": "All required data are missing!"}
                 return response
 
-    @http.route('/api/get/area', type='json', methods=['POST'], auth='public', sitemap=False)
+    @http.route('/api/get/area', type='json', methods=['GET'], auth='public', sitemap=False)
     def get_area(self,**kw):
         data = []
         ereas = request.env['area.area'].sudo().search([])
