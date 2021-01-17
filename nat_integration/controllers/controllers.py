@@ -99,7 +99,7 @@ class NatApi(http.Controller):
                                                                    limit=1)
 
                 if custome:
-                    reorder_linesponse = {"code": 200, "message": "Custome already exist", "data": True}
+                    response = {"code": 200, "message": "Custome already exist", "data": True}
                     return response
                 else:
                     response = {"code": 200, "message": "Custome Not Exist", "data": False}
