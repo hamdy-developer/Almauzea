@@ -66,6 +66,7 @@ class NatApi(http.Controller):
         return data
 
     def sale_order_data(self, sale_order):
+        line_data=[]
         for line in sale_order.order_line:
             base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
             image_url = "Null"
