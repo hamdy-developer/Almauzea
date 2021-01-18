@@ -11,7 +11,7 @@ class purchase_order(models.Model):
     coverage = fields.Float(string="Coverage", required=False, )
     coverage_a_o = fields.Float(string="Coverage A/O", required=False, )
 
-    @api.onchange("product_id")
+    @api.onchange("product_id",'product_qty')
     def default_avr_Sales(self):
         for rec in self:
 
