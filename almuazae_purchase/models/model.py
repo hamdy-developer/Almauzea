@@ -28,4 +28,4 @@ class purchase_order(models.Model):
             rec.avr_sales = avr_sales
             if rec.avr_sales!=0:
                 rec.coverage=rec.stock/rec.avr_sales
-                rec.coverage=(rec.stock+rec.product_qty)/rec.avr_sales
+                rec.coverage_a_o=(rec.stock+rec.product_qty)/rec.avr_sales
