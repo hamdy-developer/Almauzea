@@ -16,9 +16,9 @@ class purchase_order(models.Model):
         for rec in self:
 
             avr_sales = 0
-            yaster = datetime.today() - relativedelta(days=1)
+            # yaster = datetime.today() - relativedelta(days=1)
             print('yaster')
-            sale_orders = self.env['sale.order'].search([("date_order", '=', yaster)])
+            sale_orders = self.env['sale.order'].search([("state", '=', 'sale')])
             for order in sale_orders:
                 sale_order_line = self.env['sale.order.line'].search(
                     [("order_id", '=', order.id), ('product_id', '=', rec.product_id.id)])

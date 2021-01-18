@@ -11,8 +11,8 @@ class product_Unit_of_Measure(models.Model):
     _description = 'New Description'
 
     uom_id = fields.Many2one('uom.uom', string='Unit of Measure',  required=True)
-    price = fields.Float(string="Price",  required=True, )
-    product_id = fields.Many2one(comodel_name="product.template", string="", required=True, )
+    price = fields.Float(string="Price",  required=False, )
+    product_id = fields.Many2one(comodel_name="product.template", string="", required=False, )
 
 class stock_warehouse(models.Model):
     _inherit = 'stock.warehouse'
@@ -56,7 +56,7 @@ class sale_order(models.Model):
 class product_template(models.Model):
     _inherit = 'product.template'
 
-    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=True, )
+    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=False, )
     uom_ids = fields.One2many(comodel_name="product.unit_of_measure", inverse_name="product_id", string="", required=False, )
 
     @api.constrains("image_1920")
@@ -72,7 +72,7 @@ class product_template(models.Model):
 class product_brand(models.Model):
     _inherit = 'product.brand'
 
-    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=True, )
+    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=False, )
 
 
     @api.constrains("brand_image")
@@ -88,7 +88,7 @@ class product_brand(models.Model):
 class product_template(models.Model):
     _inherit = 'product.category'
 
-    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=True, )
+    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=False, )
     image_1920 = fields.Image("Image", compute="get_image",readonly=False)
     brand_ids = fields.Many2many(comodel_name="product.brand", string="Brands" )
 
