@@ -29,3 +29,9 @@ class purchase_order(models.Model):
             if rec.avr_sales!=0:
                 rec.coverage=rec.stock/rec.avr_sales
                 rec.coverage_a_o=(rec.stock+rec.product_qty)/rec.avr_sales
+
+
+class res_partner(models.Model):
+    _inherit = 'res.partner'
+
+    is_verified = fields.Boolean(string="verified",  )
