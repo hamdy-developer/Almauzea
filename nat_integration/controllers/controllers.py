@@ -347,7 +347,7 @@ class NatApi(http.Controller):
         """{
                     "params": {
                         "token":"token",
-                        "category":"category_id"
+                        "subcategory":"category_id"
                     }
                 }"""
         if not kw:
@@ -358,7 +358,7 @@ class NatApi(http.Controller):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
                     category = request.env['product.category'].sudo().search(
-                        [('id', '=', int(kw.get('category')))])
+                        [('id', '=', int(kw.get('subcategory')))])
                     data = [{"id": 0, "name": "all"}]
                     for brand in category.brand_ids:
                         data.append(self.brand_data(brand))
@@ -400,7 +400,7 @@ class NatApi(http.Controller):
         """{
                     "params": {
                         "token":"token",
-                        "category":"category.id",
+                        "subcategory":"subcategory.id",
                         "brand":"brand.id"
                     }
                 }"""
@@ -413,10 +413,10 @@ class NatApi(http.Controller):
                 if customer:
                     if bool(kw.get('brand', False))!=True or int(kw.get('brand', False)) == 0:
                         products = request.env['product.template'].sudo().search(
-                            [('categ_id', '=', int(kw.get('category')))])
+                            [('categ_id', '=', int(kw.get('subcategory')))])
                     else:
                         products = request.env['product.template'].sudo().search(
-                            [('categ_id', '=', int(kw.get('category'))), ('brand_id', '=', int(kw.get('brand')))])
+                            [('categ_id', '=', int(kw.get('subcategory'))), ('brand_id', '=', int(kw.get('brand')))])
                     data = []
                     for product in products:
                         data.append(self.product_data(product))
@@ -440,7 +440,14 @@ class NatApi(http.Controller):
             if kw.get('token', False):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
-                    response = {"code": 200, "message": "Home Data", "data": {"best_seller": self.best_seller()}}
+                    root_categorys = request.env['product.category'].sudo().search([('parent_id', '=', False)])
+                    data = []
+                    for root_category in root_categorys:
+                        categorys = request.env['product.category'].sudo().search(
+                            [('parent_id', '=', root_category.id)])
+                        if categorys:
+                            data.append(self.category_data(root_category))
+                    response = {"code": 200, "message": "Home Data", "data": {'categorys':data,"best_seller": self.best_seller(),"products_offers": self.best_seller()}}
                     return response
                 else:
                     response = {"code": 401, "message": "token is missing!"}
