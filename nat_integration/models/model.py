@@ -18,7 +18,8 @@ class stock_warehouse(models.Model):
     _inherit = 'stock.warehouse'
 
     area_id = fields.Many2one(comodel_name="area.area", string="Area", required=False, )
-
+    sale_order_amount = fields.Float(string="Sale order amount",  required=False, )
+    hab_id = fields.Many2one(comodel_name="stock.warehouse", string="Hab", required=False, )
 class res_partner(models.Model):
     _inherit = 'res.partner'
 

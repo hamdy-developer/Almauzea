@@ -555,6 +555,12 @@ class NatApi(http.Controller):
 
                     data = {}
                     if sale_order:
+                        warehouses= self.env[''].sudo().search([('area_id','=',customer.area_id.id)],limit=1)
+                        if warehouses:
+                            if warehouses.sale_order_amount < sale_order.amount_total:
+                                sale_order.warehouse_id=warehouses.hab_id.id
+                            else:
+                                sale_order.warehouse_id = warehouses.id
                         sale_order.sudo().action_confirm()
                         data = self.sale_order_data(sale_order)
                     response = {"code": 200, "message": "sale order data", "data": data}
