@@ -14,20 +14,50 @@
                         <field name="coverage" invisible="0"/>
                         <field name="coverage_a_o" invisible="0"/>
                     </xpath>
+                    <xpath expr="//field[@name='partner_ref']" position="after">
+                        <field name="discount_all"/>
+                        <field name="tolerance"/>
+                    </xpath>
+                    <xpath expr="//notebook" position="inside">
+                        <page string="Vendor offers">
+                            <group>
+                                <field name="message"/>
+                                <field name="apply_after"/>
+                                <field name="discount"/>
+                            </group>
+                        </page>
+                    </xpath>
                 </data>
             </field>
         </record>
 
-<!--        <record id="id_base_view_partner_form_inh" model="ir.ui.view">-->
-<!--            <field name="name">res.partner.form</field>-->
-<!--            <field name="model">res.partner</field>-->
-<!--            <field name="inherit_id" ref="base.view_partner_form"/>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <xpath expr="//field[@name='vat']" position="after">-->
-<!--                    <field name="is_verified"/>-->
-<!--                </xpath>-->
-<!--            </field>-->
-<!--        </record>-->
+        <record id="id_view_purchase_requisition_form_inherit" model="ir.ui.view">
+            <field name="name">purchase.requisition.form.inherit</field>
+            <field name="model">purchase.requisition</field>
+            <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="/form/sheet/notebook/page/field[@name='line_ids']/tree/field[@name='price_unit']"
+                       position="after">
+                    <field name="stock" invisible="0"/>
+                    <field name="avr_sales" invisible="0"/>
+                    <field name="coverage" invisible="0"/>
+                    <field name="coverage_a_o" invisible="0"/>
+                </xpath>
+                <xpath expr="//field[@name='vendor_id']" position="after">
+                    <field name="warehouse_id"/>
+                </xpath>
+            </field>
+        </record>
+        <!--        <record id="id_base_view_partner_form_inh" model="ir.ui.view">-->
+        <!--            <field name="name">res.partner.form</field>-->
+        <!--            <field name="model">res.partner</field>-->
+        <!--            <field name="inherit_id" ref="base.view_partner_form"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <xpath expr="//field[@name='vat']" position="after">-->
+        <!--                    <field name="is_verified"/>-->
+        <!--                </xpath>-->
+        <!--            </field>-->
+        <!--        </record>-->
 
 
     </data>
