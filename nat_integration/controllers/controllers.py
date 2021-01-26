@@ -43,9 +43,9 @@ class NatApi(http.Controller):
         units_of_measure = []
         for uom in product.uom_ids:
             units_of_measure.append(
-                {'id': uom.uom_ids.uom_id.id, 'name': uom.uom_ids.uom_id.name, 'price': round(uom.uom_ids.price,2)})
+                {'id': uom.uom_ids.uom_id.id, 'name': uom.uom_ids.uom_id.name, 'price': round(uom.uom_ids.price, 2)})
         return {'id': product.id, 'name': product.name, 'image': image_url,
-                'default_Price': round(product.list_price,2), 'Barcode': product.barcode,
+                'default_Price': round(product.list_price, 2), 'Barcode': product.barcode,
                 'default_Unit_of_Measure': {'id': product.uom_id.id, 'name': product.uom_id.name},
                 'brand': brand, 'units_of_measure': units_of_measure}
 
@@ -66,7 +66,7 @@ class NatApi(http.Controller):
         return data
 
     def sale_order_data(self, sale_order):
-        line_data=[]
+        line_data = []
         for line in sale_order.order_line:
             base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
             image_url = "Null"
@@ -79,9 +79,9 @@ class NatApi(http.Controller):
                                                    "name": line.product_uom.name},
                               "subtotal": line.price_subtotal, })
 
-        return  {"id": sale_order.id, "name": sale_order.name, "date": sale_order.date_order,
-                "total_untax": round(sale_order.amount_untaxed,2), "tax": round(sale_order.amount_tax,2),
-                "total": round(sale_order.amount_total,2), "lines": line_data}
+        return {"id": sale_order.id, "name": sale_order.name, "date": sale_order.date_order,
+                "total_untax": round(sale_order.amount_untaxed, 2), "tax": round(sale_order.amount_tax, 2),
+                "total": round(sale_order.amount_total, 2), "lines": line_data}
 
     @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def check_customer(self, **kw):
@@ -109,7 +109,7 @@ class NatApi(http.Controller):
                 return response
 
     @http.route('/api/get/area', type='json', methods=['POST'], auth='public', sitemap=False)
-    def get_area(self,**kw):
+    def get_area(self, **kw):
         data = []
         ereas = request.env['area.area'].sudo().search([])
         for erea in ereas:
@@ -411,7 +411,7 @@ class NatApi(http.Controller):
             if kw.get('token', False):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
-                    if bool(kw.get('brand', False))!=True or int(kw.get('brand', False)) == 0:
+                    if bool(kw.get('brand', False)) != True or int(kw.get('brand', False)) == 0:
                         products = request.env['product.template'].sudo().search(
                             [('categ_id', '=', int(kw.get('subcategory')))])
                     else:
@@ -447,7 +447,9 @@ class NatApi(http.Controller):
                             [('parent_id', '=', root_category.id)])
                         if categorys:
                             data.append(self.category_data(root_category))
-                    response = {"code": 200, "message": "Home Data", "data": {'categorys':data,"best_seller": self.best_seller(),"products_offers": self.best_seller()}}
+                    response = {"code": 200, "message": "Home Data",
+                                "data": {'categorys': data, "best_seller": self.best_seller(),
+                                         "products_offers": self.best_seller()}}
                     return response
                 else:
                     response = {"code": 401, "message": "token is missing!"}
@@ -543,6 +545,44 @@ class NatApi(http.Controller):
                     response = {"code": 401, "message": "token is missing!"}
                     return response
 
+    @http.route('/api/sale/order/edit', type='json', methods=['POST'], auth='public', sitemap=False)
+    def sale_order_edit(self, **kw):
+        """{
+                    "params": {
+                    "token":"token",
+                    "data":[{
+                        "line_id":"line.id",
+                        "quantity":"quantity",
+                    },{
+                        "line_id":"line.id",
+                        "quantity":"quantity",
+                    }]}
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "All data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    for line in kw.get('data', False):
+                        line_id=request.env['sale.order.line'].sudo().search([('id','=',int(line.get('line_id',False)))],limit=1)
+                        if line.get('quantity',False):
+                            line_id.product_uom_qty=line.get('quantity')
+                        else:
+                            line_id.sudo().unlink()
+                    sale_order = request.env['sale.order'].sudo().search(
+                        [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+
+                    data = {}
+                    if sale_order:
+                        data = self.sale_order_data(sale_order)
+                    response = {"code": 200, "message": "sale order data", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
     @http.route('/api/sale/order/confirm', type='json', methods=['POST'], auth='public', sitemap=False)
     def sale_order_confirm(self, **kw):
         """{
@@ -558,14 +598,14 @@ class NatApi(http.Controller):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
                     sale_order = request.env['sale.order'].sudo().search(
-                            [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+                        [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
 
                     data = {}
                     if sale_order:
-                        warehouses= self.env[''].sudo().search([('area_id','=',customer.area_id.id)],limit=1)
+                        warehouses = self.env[''].sudo().search([('area_id', '=', customer.area_id.id)], limit=1)
                         if warehouses:
                             if warehouses.sale_order_amount < sale_order.amount_total:
-                                sale_order.warehouse_id=warehouses.hab_id.id
+                                sale_order.warehouse_id = warehouses.hab_id.id
                             else:
                                 sale_order.warehouse_id = warehouses.id
                         sale_order.sudo().action_confirm()
@@ -593,7 +633,7 @@ class NatApi(http.Controller):
                         [('partner_id', '=', customer.id), ('state', 'in', ['sale'])])
                     data = []
                     for sale_order in sale_orders:
-                        data.append( self.sale_order_data(sale_order))
+                        data.append(self.sale_order_data(sale_order))
                     response = {"code": 200, "message": "order history", "data": data}
                     return response
                 else:
@@ -616,14 +656,14 @@ class NatApi(http.Controller):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
                     sale_order = request.env['sale.order'].sudo().search(
-                        [('id', '=', int(kw.get('sale_order')))],limit=1)
+                        [('id', '=', int(kw.get('sale_order')))], limit=1)
                     data = {}
                     if sale_order:
-                        order= request.env['sale.order'].sudo().create({
+                        order = request.env['sale.order'].sudo().create({
                             "partner_id": sale_order.partner_id.id,
                             "order_line": sale_order.order_line.ids
                         })
-                        data=self.sale_order_data(order)
+                        data = self.sale_order_data(order)
                     response = {"code": 200, "message": "order data", "data": data}
                     return response
                 else:
@@ -642,7 +682,7 @@ class NatApi(http.Controller):
         else:
             if kw.get('token', False):
                 customer = self.get_customer(kw.get('token'))
-                data={"is_verified":customer.is_verified}
+                data = {"is_verified": customer.is_verified}
                 if customer:
                     response = {"code": 200, "data": data}
                     return response

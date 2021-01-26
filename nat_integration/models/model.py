@@ -27,6 +27,7 @@ class res_partner(models.Model):
     shop_name = fields.Char(string="Shop Name", required=False, readonly=False)
     password = fields.Char(string="Password", required=False, readonly=False)
     area_id = fields.Many2one(comodel_name="area.area", string="Area", required=False, )
+    is_verified = fields.Boolean(string="is_verified",  )
     def generate_token(self):
         for rec in self:
             rec.token = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase +
@@ -112,3 +113,12 @@ class product_template(models.Model):
                 rec.attachment_id=attachment.id
             else:
                 rec.attachment_id.datas=rec.image_1920
+
+#
+# class verified_verified(models.Model):
+#     _name = 'verified.verified'
+#     _rec_name = "partner_id"
+#     _description = 'Verified'
+#
+#     partner_id = fields.Many2one(comodel_name="res.partner", string="customer", required=True, )
+#     odoof

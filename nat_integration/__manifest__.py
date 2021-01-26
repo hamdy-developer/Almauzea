@@ -3,7 +3,7 @@
 
 {
     'name' : 'nat_integration',
-    'version' : '1.0',
+    'version' : '1.1',
     'category': 'lenght_width',
     'depends' : ['base','product','stock','product_brand_inventory','sale','almuazae_purchase'],
     'data': [
