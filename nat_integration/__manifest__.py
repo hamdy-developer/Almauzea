@@ -2,10 +2,10 @@
 
 
 {
-    'name' : 'nat_integration',
-    'version' : '1.1',
+    'name': 'nat_integration',
+    'version': '1.2',
     'category': 'lenght_width',
-    'depends' : ['base','product','stock','product_brand_inventory','sale','almuazae_purchase'],
+    'depends': ['base', 'product', 'stock', 'product_brand_inventory', 'sale', 'almuazae_purchase'],
     'data': [
         "security/ir.model.access.csv",
         "views/view.xml",
