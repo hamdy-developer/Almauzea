@@ -39,15 +39,13 @@ class NatApi(http.Controller):
             image_url = base_path + product.attachment_id.local_url
         brand = "Null"
         if product.brand_id:
-            brand = {'id': product.brand_id.id, 'name': product.brand_id.name}
-        units_of_measure = []
+            brand = {'id': product.brand_id.id, 'name': product.brand_id.name,'Price': round(product.list_price, 2)}
+        units_of_measure = [{'id': product.uom_id.id, 'name': product.uom_id.name,}]
         for uom in product.uom_ids:
             units_of_measure.append(
                 {'id': uom.uom_ids.uom_id.id, 'name': uom.uom_ids.uom_id.name, 'price': round(uom.uom_ids.price, 2)})
         return {'id': product.id, 'name': product.name, 'image': image_url,
-                'default_Price': round(product.list_price, 2), 'Barcode': product.barcode,
-                'default_Unit_of_Measure': {'id': product.uom_id.id, 'name': product.uom_id.name},
-                'brand': brand, 'units_of_measure': units_of_measure}
+                'Barcode': product.barcode,'brand': brand, 'units_of_measure': units_of_measure}
 
     def brand_data(self, brand):
         base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
