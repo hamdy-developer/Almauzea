@@ -30,7 +30,7 @@ class NatApi(http.Controller):
         brand = "Null"
 
         return {'id': category.id, 'name': category.name, 'image': image_url,
-                'subcategory': self.get_subcategory(category), 'parent_id': category.parent_id.id or "Null"}
+                'subcategory': self.get_subcategory(category), 'parent_id': category.parent_id.id or 0}
 
     def product_data(self, product):
         base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
