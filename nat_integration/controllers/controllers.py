@@ -40,7 +40,7 @@ class NatApi(http.Controller):
         brand = "Null"
         if product.brand_id:
             brand = {'id': product.brand_id.id, 'name': product.brand_id.name,'Price': round(product.list_price, 2)}
-        units_of_measure = [{'id': product.uom_id.id, 'name': product.uom_id.name,}]
+        units_of_measure = [{'id': product.uom_id.id, 'name': product.uom_id.name,'price': round(product.list_price, 2)}]
         if product.uom_ids:
             for uom in product.uom_ids:
                 units_of_measure.append(
