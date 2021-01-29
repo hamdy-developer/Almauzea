@@ -80,7 +80,7 @@ class NatApi(http.Controller):
 
         return {"id": sale_order.id, "name": sale_order.name, "date": sale_order.date_order,
                 "total_untax": round(sale_order.amount_untaxed, 2), "tax": round(sale_order.amount_tax, 2),
-                "total": round(sale_order.amount_total, 2), "lines": line_data}
+                "total": round(sale_order.amount_total,2), "lines": line_data}
 
     @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def check_customer(self, **kw):
@@ -411,10 +411,10 @@ class NatApi(http.Controller):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
                     if bool(kw.get('brand', False)) != True or int(kw.get('brand', False)) == 0:
-                        products = request.env['product.template'].sudo().search(
+                        products = request.env['product.product'].sudo().search(
                             [('categ_id', '=', int(kw.get('subcategory')))])
                     else:
-                        products = request.env['product.template'].sudo().search(
+                        products = request.env['product.product'].sudo().search(
                             [('categ_id', '=', int(kw.get('subcategory'))), ('brand_id', '=', int(kw.get('brand')))])
                     data = []
                     for product in products:
