@@ -604,7 +604,7 @@ class NatApi(http.Controller):
                     if sale_order:
                         warehouses = request.env['stock.warehouse'].sudo().search([('area_id', '=', customer.area_id.id)], limit=1)
                         if warehouses:
-                            if warehouses.sale_order_amount < sale_order.amount_total:
+                            if warehouses.sale_order_amount < sale_order.amount_total and warehouses.hab_id.id:
                                 sale_order.warehouse_id = warehouses.hab_id.id
                             else:
                                 sale_order.warehouse_id = warehouses.id
