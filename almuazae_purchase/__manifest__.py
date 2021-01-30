@@ -5,9 +5,9 @@
     'name' : 'almuazae_purchase',
     'version' : '1.0',
     'category': 'lenght_width',
-    'depends' : ['base','product','stock','purchase','sale'],
+    'depends' : ['base','product','stock','purchase','sale','purchase_requisition'],
     'data': [
-        # "views/view.xml",
+        "views/view.xml",
     ],
     'installable': True,
     'application': False,
