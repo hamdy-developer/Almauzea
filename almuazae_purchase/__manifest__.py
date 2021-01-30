@@ -7,7 +7,7 @@
     'category': 'lenght_width',
     'depends' : ['base','product','stock','purchase','sale'],
     'data': [
-        "views/view.xml",
+        # "views/view.xml",
     ],
     'installable': True,
     'application': False,
