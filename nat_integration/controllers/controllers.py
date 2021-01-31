@@ -521,6 +521,7 @@ class NatApi(http.Controller):
                                                         product.get("units_of_measure")) or False,
                                                 })]
                             })
+                        sale_order.sudo().price()
                         response = {"code": 200, "message": "Add Card",
                                     "data": {"sale_order": {'id': sale_order.id, "name": sale_order.name}}}
                     else:
