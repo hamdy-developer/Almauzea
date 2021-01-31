@@ -114,11 +114,11 @@ class product_template(models.Model):
             else:
                 rec.attachment_id.datas=rec.image_1920
 
-#
-# class verified_verified(models.Model):
-#     _name = 'verified.verified'
-#     _rec_name = "partner_id"
-#     _description = 'Verified'
-#
-#     partner_id = fields.Many2one(comodel_name="res.partner", string="customer", required=True, )
-#     odoof
+
+
+class sale_order_line(models.Model):
+    _inherit = 'sale.order.line'
+
+    @api.onchange('product_uom', 'product_uom_qty')
+    def product_uom_change(self):
+       pass

@@ -485,12 +485,6 @@ class NatApi(http.Controller):
             if kw.get('token', False):
                 customer = self.get_customer(kw.get('token'))
                 for product in kw.get('products'):
-                    print('ttttttttttttttttttttt',request.env['product.unit_of_measure'].sudo().search(
-                                                        [('product_id', '=', int(product.get("id"))),
-                                                         ('uom_id', '=', int(product.get("units_of_measure")))],
-                                                        limit=1).price or
-                                                        request.env['product.product'].sudo().search([('id','=',int(product.get("id")))],limit=1).lst_price,
-                                                    )
                     if customer:
                         sale_order = request.env['sale.order'].sudo().search(
                             [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
@@ -516,6 +510,7 @@ class NatApi(http.Controller):
                                                                   product.get("quantity")) or False,
                                                               "product_uom": int(product.get("units_of_measure")) or False,
                                                           })]
+
                         elif int(product.get("quantity")) != 0:
                             sale_order = request.env['sale.order'].sudo().create({
                                 "partner_id": customer.id,
