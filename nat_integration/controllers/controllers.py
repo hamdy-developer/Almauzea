@@ -77,7 +77,8 @@ class NatApi(http.Controller):
                                           "image": image_url}, "quantity": line.product_uom_qty,
                               "units_of_measure": {"id": line.product_uom.id,
                                                    "name": line.product_uom.name},
-                              "subtotal": line.price_subtotal, })
+                              "subtotal": line.price_subtotal,
+                              "unit_price": line.price_unit, })
         pick=False
         for picking in sale_order.picking_ids:
             if picking.state=='done':
