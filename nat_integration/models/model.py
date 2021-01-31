@@ -13,6 +13,7 @@ class product_Unit_of_Measure(models.Model):
     uom_id = fields.Many2one('uom.uom', string='Unit of Measure',  required=True)
     price = fields.Float(string="Price",  required=False, )
     product_id = fields.Many2one(comodel_name="product.template", string="", required=False, )
+    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse', required=False)
 
 class stock_warehouse(models.Model):
     _inherit = 'stock.warehouse'
@@ -20,6 +21,7 @@ class stock_warehouse(models.Model):
     area_id = fields.Many2one(comodel_name="area.area", string="Area", required=False, )
     sale_order_amount = fields.Float(string="Sale order amount",  required=False, )
     hab_id = fields.Many2one(comodel_name="stock.warehouse", string="Hab", required=False, )
+
 class res_partner(models.Model):
     _inherit = 'res.partner'
 

@@ -68,6 +68,7 @@
                     <group>
                         <field name="uom_ids">
                             <tree editable="top">
+                                <field name="warehouse_id" invisible="1"/>
                                 <field name="uom_id"/>
                                 <field name="price"/>
                             </tree>
