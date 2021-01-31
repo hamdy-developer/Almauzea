@@ -516,198 +516,198 @@ class NatApi(http.Controller):
                                                               "product_uom": int(
                                                                   product.get("units_of_measure")) or False,
                                                           })]
-                            elif int(product.get("quantity")) != 0:
-                                sale_order = request.env['sale.order'].sudo().create({
-                                    "partner_id": customer.id,
-                                    "order_line": [(0, 0,
-                                                    {
-                                                        "product_id": int(product.get("id")) or False,
-                                                        "product_uom_qty": int(product.get("quantity")) or False,
-                                                        "product_uom": int(
-                                                            product.get("units_of_measure")) or False,
-                                                    })]
-                                })
-                            response = {"code": 200, "message": "Add Card",
-                                        "data": {"sale_order": {'id': sale_order.id, "name": sale_order.name}}}
-                        else:
-                            response = {"code": 401, "message": "token is missing!"}
-                            return response
+                        elif int(product.get("quantity")) != 0:
+                            sale_order = request.env['sale.order'].sudo().create({
+                                "partner_id": customer.id,
+                                "order_line": [(0, 0,
+                                                {
+                                                    "product_id": int(product.get("id")) or False,
+                                                    "product_uom_qty": int(product.get("quantity")) or False,
+                                                    "product_uom": int(
+                                                        product.get("units_of_measure")) or False,
+                                                })]
+                            })
+                        response = {"code": 200, "message": "Add Card",
+                                    "data": {"sale_order": {'id': sale_order.id, "name": sale_order.name}}}
+                    else:
+                        response = {"code": 401, "message": "token is missing!"}
+                        return response
                     return response
 
-        @http.route('/api/sale/order/details', type='json', methods=['POST'], auth='public', sitemap=False)
-        def sale_order_details(self, **kw):
-            """{
-                        "params": {
-                            "token":"token",
-                            "sale_oedr_id":"sale_oedr.id"
-                        }
-                    }"""
-            if not kw:
-                response = {"code": 401, "message": "All data is missing!"}
-                return response
-            else:
-                if kw.get('token', False):
-                    customer = self.get_customer(kw.get('token'))
-                    if customer:
-                        if kw.get('sale_oedr_id', False):
-                            sale_order = request.env['sale.order'].sudo().search(
-                                [('id', '=', int(kw.get('sale_oedr_id')))], limit=1)
-                        else:
-                            sale_order = request.env['sale.order'].sudo().search(
-                                [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
-
-                        data = {}
-                        if sale_order:
-                            data = self.sale_order_data(sale_order)
-                        response = {"code": 200, "message": "sale order data", "data": data}
-                        return response
-                    else:
-                        response = {"code": 401, "message": "token is missing!"}
-                        return response
-
-        @http.route('/api/sale/order/edit', type='json', methods=['POST'], auth='public', sitemap=False)
-        def sale_order_edit(self, **kw):
-            """{
-                        "params": {
+    @http.route('/api/sale/order/details', type='json', methods=['POST'], auth='public', sitemap=False)
+    def sale_order_details(self, **kw):
+        """{
+                    "params": {
                         "token":"token",
-                        "data":[{
-                            "line_id":"line.id",
-                            "quantity":"quantity",
-                        },{
-                            "line_id":"line.id",
-                            "quantity":"quantity",
-                        }]}
-                    }"""
-            if not kw:
-                response = {"code": 401, "message": "All data is missing!"}
-                return response
-            else:
-                if kw.get('token', False):
-                    customer = self.get_customer(kw.get('token'))
-                    if customer:
-                        for line in kw.get('data', False):
-                            line_id = request.env['sale.order.line'].sudo().search(
-                                [('id', '=', int(line.get('line_id', False)))], limit=1)
-                            if line.get('quantity', False):
-                                line_id.product_uom_qty = line.get('quantity')
+                        "sale_oedr_id":"sale_oedr.id"
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "All data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    if kw.get('sale_oedr_id', False):
+                        sale_order = request.env['sale.order'].sudo().search(
+                            [('id', '=', int(kw.get('sale_oedr_id')))], limit=1)
+                    else:
+                        sale_order = request.env['sale.order'].sudo().search(
+                            [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+
+                    data = {}
+                    if sale_order:
+                        data = self.sale_order_data(sale_order)
+                    response = {"code": 200, "message": "sale order data", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
+    @http.route('/api/sale/order/edit', type='json', methods=['POST'], auth='public', sitemap=False)
+    def sale_order_edit(self, **kw):
+        """{
+                    "params": {
+                    "token":"token",
+                    "data":[{
+                        "line_id":"line.id",
+                        "quantity":"quantity",
+                    },{
+                        "line_id":"line.id",
+                        "quantity":"quantity",
+                    }]}
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "All data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    for line in kw.get('data', False):
+                        line_id = request.env['sale.order.line'].sudo().search(
+                            [('id', '=', int(line.get('line_id', False)))], limit=1)
+                        if line.get('quantity', False):
+                            line_id.product_uom_qty = line.get('quantity')
+                        else:
+                            line_id.sudo().unlink()
+                    sale_order = request.env['sale.order'].sudo().search(
+                        [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+
+                    data = {}
+                    if sale_order:
+                        data = self.sale_order_data(sale_order)
+                    response = {"code": 200, "message": "sale order data", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
+
+    @http.route('/api/sale/order/confirm', type='json', methods=['POST'], auth='public', sitemap=False)
+    def sale_order_confirm(self, **kw):
+        """{
+                    "params": {
+                        "token":"token",
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "All data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    sale_order = request.env['sale.order'].sudo().search(
+                        [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+
+                    data = {}
+                    if sale_order:
+                        warehouses = request.env['stock.warehouse'].sudo().search(
+                            [('area_id', '=', customer.area_id.id)], limit=1)
+                        if warehouses:
+                            if warehouses.sale_order_amount < sale_order.amount_total and warehouses.hab_id.id:
+                                sale_order.warehouse_id = warehouses.hab_id.id
                             else:
-                                line_id.sudo().unlink()
-                        sale_order = request.env['sale.order'].sudo().search(
-                            [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+                                sale_order.warehouse_id = warehouses.id
+                        sale_order.sudo().action_confirm()
+                        data = self.sale_order_data(sale_order)
+                    response = {"code": 200, "message": "sale order data", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
 
-                        data = {}
-                        if sale_order:
-                            data = self.sale_order_data(sale_order)
-                        response = {"code": 200, "message": "sale order data", "data": data}
-                        return response
-                    else:
-                        response = {"code": 401, "message": "token is missing!"}
-                        return response
+    @http.route('/api/sale/order/history', type='json', methods=['POST'], auth='public', sitemap=False)
+    def order_history(self, **kw):
+        """{"params": {
+                        "token":"token",
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "all data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    sale_orders = request.env['sale.order'].sudo().search(
+                        [('partner_id', '=', customer.id), ('state', 'in', ['sale'])])
+                    data = []
+                    for sale_order in sale_orders:
+                        data.append(self.sale_order_data(sale_order))
+                    response = {"code": 200, "message": "order history", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
 
-        @http.route('/api/sale/order/confirm', type='json', methods=['POST'], auth='public', sitemap=False)
-        def sale_order_confirm(self, **kw):
-            """{
-                        "params": {
-                            "token":"token",
-                        }
-                    }"""
-            if not kw:
-                response = {"code": 401, "message": "All data is missing!"}
-                return response
-            else:
-                if kw.get('token', False):
-                    customer = self.get_customer(kw.get('token'))
-                    if customer:
-                        sale_order = request.env['sale.order'].sudo().search(
-                            [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
+    @http.route('/api/sale/order/reorder', type='json', methods=['POST'], auth='public', sitemap=False)
+    def order_reorder(self, **kw):
+        """{"params": {
+                        "token":"token",
+                        "sale_order":"sale_order_id",
 
-                        data = {}
-                        if sale_order:
-                            warehouses = request.env['stock.warehouse'].sudo().search(
-                                [('area_id', '=', customer.area_id.id)], limit=1)
-                            if warehouses:
-                                if warehouses.sale_order_amount < sale_order.amount_total and warehouses.hab_id.id:
-                                    sale_order.warehouse_id = warehouses.hab_id.id
-                                else:
-                                    sale_order.warehouse_id = warehouses.id
-                            sale_order.sudo().action_confirm()
-                            data = self.sale_order_data(sale_order)
-                        response = {"code": 200, "message": "sale order data", "data": data}
-                        return response
-                    else:
-                        response = {"code": 401, "message": "token is missing!"}
-                        return response
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "all data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    sale_order = request.env['sale.order'].sudo().search(
+                        [('id', '=', int(kw.get('sale_order')))], limit=1)
+                    data = {}
+                    if sale_order:
+                        order = request.env['sale.order'].sudo().create({
+                            "partner_id": sale_order.partner_id.id,
+                            "order_line": sale_order.order_line.ids
+                        })
+                        data = self.sale_order_data(order)
+                    response = {"code": 200, "message": "order data", "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
 
-        @http.route('/api/sale/order/history', type='json', methods=['POST'], auth='public', sitemap=False)
-        def order_history(self, **kw):
-            """{"params": {
-                            "token":"token",
-                        }
-                    }"""
-            if not kw:
-                response = {"code": 401, "message": "all data is missing!"}
-                return response
-            else:
-                if kw.get('token', False):
-                    customer = self.get_customer(kw.get('token'))
-                    if customer:
-                        sale_orders = request.env['sale.order'].sudo().search(
-                            [('partner_id', '=', customer.id), ('state', 'in', ['sale'])])
-                        data = []
-                        for sale_order in sale_orders:
-                            data.append(self.sale_order_data(sale_order))
-                        response = {"code": 200, "message": "order history", "data": data}
-                        return response
-                    else:
-                        response = {"code": 401, "message": "token is missing!"}
-                        return response
-
-        @http.route('/api/sale/order/reorder', type='json', methods=['POST'], auth='public', sitemap=False)
-        def order_reorder(self, **kw):
-            """{"params": {
-                            "token":"token",
-                            "sale_order":"sale_order_id",
-
-                        }
-                    }"""
-            if not kw:
-                response = {"code": 401, "message": "all data is missing!"}
-                return response
-            else:
-                if kw.get('token', False):
-                    customer = self.get_customer(kw.get('token'))
-                    if customer:
-                        sale_order = request.env['sale.order'].sudo().search(
-                            [('id', '=', int(kw.get('sale_order')))], limit=1)
-                        data = {}
-                        if sale_order:
-                            order = request.env['sale.order'].sudo().create({
-                                "partner_id": sale_order.partner_id.id,
-                                "order_line": sale_order.order_line.ids
-                            })
-                            data = self.sale_order_data(order)
-                        response = {"code": 200, "message": "order data", "data": data}
-                        return response
-                    else:
-                        response = {"code": 401, "message": "token is missing!"}
-                        return response
-
-        @http.route('/api/customer/verified', type='json', methods=['POST'], auth='public', sitemap=False)
-        def customer_verified(self, **kw):
-            """{"params": {
-                            "token":"token",
-                        }
-                    }"""
-            if not kw:
-                response = {"code": 401, "message": "all data is missing!"}
-                return response
-            else:
-                if kw.get('token', False):
-                    customer = self.get_customer(kw.get('token'))
-                    data = {"is_verified": customer.is_verified}
-                    if customer:
-                        response = {"code": 200, "data": data}
-                        return response
-                    else:
-                        response = {"code": 401, "message": "token is missing!"}
-                        return response
+    @http.route('/api/customer/verified', type='json', methods=['POST'], auth='public', sitemap=False)
+    def customer_verified(self, **kw):
+        """{"params": {
+                        "token":"token",
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "all data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                data = {"is_verified": customer.is_verified}
+                if customer:
+                    response = {"code": 200, "data": data}
+                    return response
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
