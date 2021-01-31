@@ -39,15 +39,14 @@ class NatApi(http.Controller):
             image_url = base_path + product.attachment_id.local_url
         brand = "Null"
         if product.brand_id:
-            brand = {'id': product.brand_id.id, 'name': product.brand_id.name, 'Price': round(product.list_price, 2)}
-        units_of_measure = [
-            {'id': product.uom_id.id, 'name': product.uom_id.name, 'price': round(product.list_price, 2)}]
+            brand = {'id': product.brand_id.id, 'name': product.brand_id.name,'Price': round(product.list_price, 2)}
+        units_of_measure = [{'id': product.uom_id.id, 'name': product.uom_id.name,'price': round(product.list_price, 2)}]
         if product.uom_ids:
             for uom in product.uom_ids:
                 units_of_measure.append(
                     {'id': uom.uom_id.id, 'name': uom.uom_id.name, 'price': round(uom.price, 2)})
         return {'id': product.id, 'name': product.name, 'image': image_url,
-                'Barcode': product.barcode, 'brand': brand, 'units_of_measure': units_of_measure}
+                'Barcode': product.barcode,'brand': brand, 'units_of_measure': units_of_measure}
 
     def brand_data(self, brand):
         base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
@@ -67,7 +66,7 @@ class NatApi(http.Controller):
 
     def sale_order_data(self, sale_order):
         line_data = []
-        state = 'لم يتم التأكد بعد'
+        state='لم يتم التأكد بعد'
         for line in sale_order.order_line:
             base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
             image_url = "Null"
@@ -79,22 +78,22 @@ class NatApi(http.Controller):
                               "units_of_measure": {"id": line.product_uom.id,
                                                    "name": line.product_uom.name},
                               "subtotal": line.price_subtotal, })
-        pick = False
+        pick=False
         for picking in sale_order.picking_ids:
-            if picking.state == 'done':
-                pick = True
+            if picking.state=='done':
+                pick=True
             else:
-                pick = False
-            if pick == False:
+                pick=False
+            if pick==False:
                 break
-        if sale_order.state == 'sale' and pick:
+        if sale_order.state =='sale' and pick:
             state = 'تم التوصيل'
-        elif sale_order.state == 'sale':
+        elif sale_order.state =='sale':
             state = 'قيد الانتظار'
 
         return {"id": sale_order.id, "name": sale_order.name, "date": sale_order.date_order,
                 "total_untax": round(sale_order.amount_untaxed, 2), "tax": round(sale_order.amount_tax, 2),
-                "total": round(sale_order.amount_total, 2), 'state': state, "lines": line_data}
+                "total": round(sale_order.amount_total,2),'state':state, "lines": line_data}
 
     @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def check_customer(self, **kw):
@@ -491,8 +490,7 @@ class NatApi(http.Controller):
                             [('partner_id', '=', customer.id), ('state', 'in', ['draft', 'sent'])], limit=1)
                         if sale_order:
                             sale_order_line = request.env['sale.order.line'].sudo().search(
-                                [('order_id', '=', sale_order.id), ('product_id', '=', int(product.get("id"))),
-                                 ('product_uom', '=', int(product.get("units_of_measure")))],
+                                [('order_id', '=', sale_order.id), ('product_id', '=', int(product.get("id"))), ('product_uom' ,'=', int(product.get("units_of_measure")))],
                                 limit=1)
                             if sale_order_line:
                                 if int(product.get("quantity")) == 0:
@@ -506,11 +504,6 @@ class NatApi(http.Controller):
                                 sale_order.order_line = [(0, 0,
                                                           {
                                                               "product_id": int(product.get("id")) or False,
-                                                              "price_unit": response.env[
-                                                                                'product.unit_of_measure'].sudo().search(
-                                                                  [('product_id', '=', int(product.get("id"))),
-                                                                   ('uom_id', '=', int(product.get("quantity")))],
-                                                                  limit=1).price2 or False,
                                                               "product_uom_qty": int(
                                                                   product.get("quantity")) or False,
                                                               "product_uom": int(
@@ -532,7 +525,7 @@ class NatApi(http.Controller):
                     else:
                         response = {"code": 401, "message": "token is missing!"}
                         return response
-                    return response
+                return response
 
     @http.route('/api/sale/order/details', type='json', methods=['POST'], auth='public', sitemap=False)
     def sale_order_details(self, **kw):
@@ -586,10 +579,9 @@ class NatApi(http.Controller):
                 customer = self.get_customer(kw.get('token'))
                 if customer:
                     for line in kw.get('data', False):
-                        line_id = request.env['sale.order.line'].sudo().search(
-                            [('id', '=', int(line.get('line_id', False)))], limit=1)
-                        if line.get('quantity', False):
-                            line_id.product_uom_qty = line.get('quantity')
+                        line_id=request.env['sale.order.line'].sudo().search([('id','=',int(line.get('line_id',False)))],limit=1)
+                        if line.get('quantity',False):
+                            line_id.product_uom_qty=line.get('quantity')
                         else:
                             line_id.sudo().unlink()
                     sale_order = request.env['sale.order'].sudo().search(
@@ -623,8 +615,7 @@ class NatApi(http.Controller):
 
                     data = {}
                     if sale_order:
-                        warehouses = request.env['stock.warehouse'].sudo().search(
-                            [('area_id', '=', customer.area_id.id)], limit=1)
+                        warehouses = request.env['stock.warehouse'].sudo().search([('area_id', '=', customer.area_id.id)], limit=1)
                         if warehouses:
                             if warehouses.sale_order_amount < sale_order.amount_total and warehouses.hab_id.id:
                                 sale_order.warehouse_id = warehouses.hab_id.id
