@@ -66,7 +66,7 @@ class product_template(models.Model):
         for rec in self:
             if not rec.attachment_id:
                 attachment = self.env['ir.attachment'].sudo().create(
-                    {"name": rec.name, "type": 'binary', 'datas': rec.image_1920})
+                    {"name": rec.name, "type": 'binary', 'datas': rec.image_1920,'public':True})
                 rec.attachment_id=attachment.id
             else:
                 rec.attachment_id.datas=rec.image_1920
@@ -82,7 +82,7 @@ class product_brand(models.Model):
         for rec in self:
             if not rec.attachment_id:
                 attachment = self.env['ir.attachment'].sudo().create(
-                    {"name": rec.name, "type": 'binary', 'datas': rec.brand_image})
+                    {"name": rec.name, "type": 'binary', 'datas': rec.brand_image,'public':True})
                 rec.attachment_id=attachment.id
             else:
                 rec.attachment_id.datas=rec.brand_image
@@ -98,10 +98,8 @@ class product_template(models.Model):
 
     @api.depends("attachment_id")
     def get_image(self):
-        print('get_imageget_imageget_imageget_image')
         for rec in self:
             if rec.attachment_id:
-                print("rec.attachment_id.datasrec.attachment_id.datas",rec.attachment_id.datas)
                 rec.image_1920=rec.attachment_id.datas
 
     @api.onchange("image_1920")
@@ -109,7 +107,7 @@ class product_template(models.Model):
         for rec in self:
             if not rec.attachment_id:
                 attachment = self.env['ir.attachment'].sudo().create(
-                    {"name": rec.name, "type": 'binary', 'datas': rec.image_1920})
+                    {"name": rec.name, "type": 'binary', 'datas': rec.image_1920,'public':True})
                 rec.attachment_id=attachment.id
             else:
                 rec.attachment_id.datas=rec.image_1920
