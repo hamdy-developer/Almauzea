@@ -66,6 +66,7 @@ class NatApi(http.Controller):
 
     def sale_order_data(self, sale_order):
         line_data = []
+        state='لم يتم التأكد بعد'
         for line in sale_order.order_line:
             base_path = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
             image_url = "Null"
@@ -77,10 +78,22 @@ class NatApi(http.Controller):
                               "units_of_measure": {"id": line.product_uom.id,
                                                    "name": line.product_uom.name},
                               "subtotal": line.price_subtotal, })
+        pick=False
+        for picking in sale_order.picking_ids:
+            if picking.state=='done':
+                pick=True
+            else:
+                pick=False
+            if pick==False:
+                break
+        if sale_order.state =='sale' and pick:
+            state = 'تم التوصيل'
+        elif sale_order.state =='sale':
+            state = 'قيد الانتظار'
 
         return {"id": sale_order.id, "name": sale_order.name, "date": sale_order.date_order,
                 "total_untax": round(sale_order.amount_untaxed, 2), "tax": round(sale_order.amount_tax, 2),
-                "total": round(sale_order.amount_total,2),'state':'لم يتم يتأكد بعد', "lines": line_data}
+                "total": round(sale_order.amount_total,2),'state':state, "lines": line_data}
 
     @http.route('/api/check/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def check_customer(self, **kw):
@@ -186,7 +199,7 @@ class NatApi(http.Controller):
     @http.route('/api/edit/customer', type='json', methods=['POST'], auth='public', sitemap=False)
     def edit_customer(self, **kw):
         """{
-                    "params": {
+                "params": {
                         "token":"token",
                         "name": "tttttttt",
                         "password": "123",
