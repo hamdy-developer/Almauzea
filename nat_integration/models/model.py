@@ -130,8 +130,10 @@ class sale_order_line(models.Model):
     def get_price_unit(self):
         for rec in self:
             if rec.product_id:
-                rec.price_unit = self.env['product.unit_of_measure'].sudo().search(
+                price_unit = self.env['product.unit_of_measure'].sudo().search(
                     [('product_id', '=', rec.product_id.id), ('uom_id', '=', rec.product_uom.id)],
-                    limit=1).price or rec.product_id.lst_price,
+                    limit=1).price or rec.product_id.lst_price
+                print('price_unitprice_unit',price_unit)
+                rec.price_unit=price_unit
             else:
-                rec.price_unit=0
+                rec.price_unit=rec.price_unit
