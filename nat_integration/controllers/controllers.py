@@ -504,8 +504,6 @@ class NatApi(http.Controller):
                                 sale_order.order_line = [(0, 0,
                                                           {
                                                               "product_id": int(product.get("id")) or False,
-                                                              "price_unit": request.env['product.unit_of_measure'].sudo().search([('product_id','=',int(product.get("id"))),('product_uom','=',int(product.get("units_of_measure")))],limit=1).price or 50 ,
-                                                                            # request.env['product.product'].sudo().search([('id','=',int(product.get("id")))],limit=1).lst_price,
                                                               "product_uom_qty": int(
                                                                   product.get("quantity")) or False,
                                                               "product_uom": int(product.get("units_of_measure")) or False,
@@ -517,11 +515,6 @@ class NatApi(http.Controller):
                                 "order_line": [(0, 0,
                                                 {
                                                     "product_id": int(product.get("id")) or False,
-                                                    "price_unit": request.env['product.unit_of_measure'].sudo().search(
-                                                        [('product_id', '=', int(product.get("id"))),
-                                                         ('product_uom', '=', int(product.get("units_of_measure")))],
-                                                        limit=1).price or 50,
-                                                        # request.env['product.product'].sudo().search([('id','=',int(product.get("id")))],limit=1).lst_price,
                                                     "product_uom_qty": int(product.get("quantity")) or False,
                                                     "product_uom": int(
                                                         product.get("units_of_measure")) or False,
