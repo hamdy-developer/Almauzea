@@ -120,20 +120,24 @@ class product_template(models.Model):
             else:
                 rec.attachment_id.datas = rec.image_1920
 
+#
+# class sale_order_line(models.Model):
+#     _inherit = 'sale.order.line'
 
-class sale_order_line(models.Model):
-    _inherit = 'sale.order.line'
-
-    price_unit = fields.Float('Unit Price', required=True, default=0.0, compute="get_price_unit")
-
-    @api.depends('product_id', 'product_uom')
-    def get_price_unit(self):
-        for rec in self:
-            if rec.product_id:
-                price_unit = self.env['product.unit_of_measure'].sudo().search(
-                    [('product_id', '=', rec.product_id.id), ('uom_id', '=', rec.product_uom.id)],
-                    limit=1).price or rec.product_id.lst_price
-                print('price_unitprice_unit',price_unit)
-                rec.price_unit=price_unit
-            else:
-                rec.price_unit=rec.price_unit
+#     price_unit = fields.Float('Unit Price', required=True, default=0.0)
+#
+    # @api.onchange('product_id', 'product_uom')
+    # def get_price_unit(self):
+    #     print('get_price_unitget_price_unitget_price_unitget_price_unit')
+    #     for rec in self:
+# #             if rec.product_id:
+# #                 price_unit = self.env['product.unit_of_measure'].sudo().search(
+# #                     [('product_id', '=', rec.product_id.id), ('uom_id', '=', rec.product_uom.id)],
+# #                     limit=1).price or rec.product_id.lst_price
+# #                 print('price_unitprice_unit',price_unit)
+# #                 rec.price_unit=price_unit
+# #             else:
+#             print('ffffffffffffff',self.env['product.unit_of_measure'].sudo().search(
+#                          [('product_id', '=', rec.product_id.id), ('uom_id', '=', rec.product_uom.id)],
+#                          limit=1).price)
+            # rec.price_unit=rec.price_unit
