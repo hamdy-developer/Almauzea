@@ -90,5 +90,35 @@
         </field>
     </record>
 
+    <record id="id_stock_picking_form_view" model="ir.ui.view">
+        <field name="name">stock.picking.form.view</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='backorder_id']" position="after">
+                <field name="sale_id" invisible="1"/>
+                <field name="is_verified" invisible="0"/>
+                <field name="code" attrs="{'invisible': [('sale_id', '=', False)]}"/>
+            </xpath>
+            <xpath expr="//sheet/div" position="after">
+                <widget name="web_ribbon" title="Verified" attrs="{'invisible': [('is_verified', '=', False)]}"/>
+            </xpath>
+            <xpath expr="//button[@name='button_validate']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_validate'][2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button" position="after">
+                <button name="button_validate"
+                        attrs="{'invisible': ['|','|', ('state', 'in', ('waiting','confirmed')), ('show_validate', '=', False),('is_verified', '!=', False)]}"
+                        string="Validate" type="object" class="oe_highlight" groups="stock.group_stock_manager"/>
+                <button name="button_validate"
+                        attrs="{'invisible': ['|','|', ('state', 'in', ('waiting','confirmed')), ('show_validate', '=', False),('is_verified', '=', False)]}"
+                        string="Validate" type="object" class="oe_highlight"/>
+            </xpath>
+
+        </field>
+    </record>
 </odoo>
 

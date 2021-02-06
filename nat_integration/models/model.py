@@ -56,15 +56,18 @@ class area_area(models.Model):
 class sale_order(models.Model):
     _inherit = 'sale.order'
 
+    # is_verified = fields.Boolean(string="",  )
+
     @api.constrains('order_line')
     def check_cancel(self):
         for rec in self:
             if len(rec.order_line.ids) == 0:
                 rec.state = 'cancel'
+
     @api.constrains('order_line')
     def price(self):
         for rec in self:
-            for line in  rec.order_line:
+            for line in rec.order_line:
                 line.sudo().get_price_unit()
 
 
@@ -134,4 +137,27 @@ class sale_order_line(models.Model):
             price_unit = self.env['product.unit_of_measure'].sudo().search(
                 [('product_id', '=', rec.product_template_id.id), ('uom_id', '=', rec.product_uom.id)],
                 limit=1).price or rec.product_id.lst_price
-            rec.price_unit=price_unit
+            rec.price_unit = price_unit
+
+
+class stock_picking(models.Model):
+    _inherit = 'stock.picking'
+
+    code = fields.Char(string="Code", required=False, readonly=True, compute="generate_code", store=True,copy=False)
+    is_verified = fields.Boolean(string="",copy=False  )
+    @api.depends("sale_id")
+    def generate_code(self):
+        print('generate_codegenerate_code')
+        for rec in self:
+            print('rec.coderec.code',rec.code)
+            print('rec.sale_idrec.sale_id',rec.sale_id)
+            if rec.sale_id and not rec.code :
+                rec.code = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase +
+                                              string.digits, k=4))
+                # stock = self.env['stock.picking'].sudo().search([('code', '=', rec.code), ('id', '!=', rec.id)])
+                # if stock:
+                #     rec.generate_code()
+                if not bool(re.search(r'\d', rec.code)):
+                    rec.generate_code()
+            else:
+                rec.code=rec.code

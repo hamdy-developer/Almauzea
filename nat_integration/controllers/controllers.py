@@ -704,3 +704,32 @@ class NatApi(http.Controller):
                 else:
                     response = {"code": 401, "message": "token is missing!"}
                     return response
+
+    @http.route('/api/order/verified', type='json', methods=['POST'], auth='public', sitemap=False)
+    def order_verified(self, **kw):
+        """{"params": {
+                        "token":"token",
+                        "sale_order":"sale_order.id",
+                        "code":"code"
+                    }
+                }"""
+        if not kw:
+            response = {"code": 401, "message": "all data is missing!"}
+            return response
+        else:
+            if kw.get('token', False):
+                customer = self.get_customer(kw.get('token'))
+                if customer:
+                    picking=request.env['stock.picking'].sudo().search([('code','=',kw.get('code')),('sale_id','=',int(kw.get('sale_order'))),('state','not in',['done','cancel'])],limit=1)
+                    print('pickingpickingpicking',picking)
+                    if picking:
+                        picking.sudo().write({'is_verified':True})
+                        response = {"code": 200, "message": "order verified!","data": True}
+                        return response
+                    else:
+                        response = {"code": 200, "message": "order verified!","data": False}
+                        return response
+
+                else:
+                    response = {"code": 401, "message": "token is missing!"}
+                    return response
