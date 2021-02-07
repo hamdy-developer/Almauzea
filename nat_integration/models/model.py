@@ -177,7 +177,7 @@ class coupon_program(models.Model):
     @api.onchange("image_1920")
     def attach_image_1920(self):
         for rec in self:
-            if not rec.attachment_id:
+            if not rec.attachment_id and rec.name :
                 attachment = self.env['ir.attachment'].sudo().create(
                     {"name": rec.name, "type": 'binary', 'datas': rec.image_1920, 'public': True})
                 rec.attachment_id = attachment.id
