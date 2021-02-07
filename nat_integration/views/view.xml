@@ -36,7 +36,7 @@
         <field name="inherit_id" ref="product.product_category_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//div" position="after">
-                <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"
+                <field name="image_1920" widget="image" class="oe_avatar"
                        force_save="1"/>
                 <field name="attachment_id" invisible="1"/>
             </xpath>
@@ -97,7 +97,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='backorder_id']" position="after">
                 <field name="sale_id" invisible="1"/>
-                <field name="is_verified" invisible="0"/>
+                <field name="is_verified" invisible="1"/>
                 <field name="code" attrs="{'invisible': [('sale_id', '=', False)]}"/>
             </xpath>
             <xpath expr="//sheet/div" position="after">
@@ -120,5 +120,26 @@
 
         </field>
     </record>
+    <record id="id_sale_coupon_program_view_promo_program_form" model="ir.ui.view">
+        <field name="name">coupon.program.form</field>
+        <field name="model">coupon.program</field>
+        <field name="inherit_id" ref="coupon.coupon_program_view_promo_program_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="before">
+                <group>
+                    <group>
+                        <field name="attachment_id"/>
+                    </group>
+                    <group></group>
+                </group>
+            </xpath>
+            <xpath expr="//div" position="after">
+                <field name="image_1920" widget="image" class="oe_avatar"
+                       force_save="1"/>
+                <field name="attachment_id" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>
 

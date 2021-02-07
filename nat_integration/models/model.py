@@ -161,3 +161,25 @@ class stock_picking(models.Model):
                     rec.generate_code()
             else:
                 rec.code=rec.code
+
+class coupon_program(models.Model):
+    _inherit = 'coupon.program'
+
+    attachment_id = fields.Many2one(comodel_name="ir.attachment", string="image", required=False, )
+    image_1920 = fields.Image("Image", compute="get_image", readonly=False)
+
+    @api.depends("attachment_id")
+    def get_image(self):
+        for rec in self:
+            if rec.attachment_id:
+                rec.image_1920 = rec.attachment_id.datas
+
+    @api.onchange("image_1920")
+    def attach_image_1920(self):
+        for rec in self:
+            if not rec.attachment_id:
+                attachment = self.env['ir.attachment'].sudo().create(
+                    {"name": rec.name, "type": 'binary', 'datas': rec.image_1920, 'public': True})
+                rec.attachment_id = attachment.id
+            else:
+                rec.attachment_id.datas = rec.image_1920
