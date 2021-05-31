@@ -157,56 +157,56 @@
                         <div class="carousel-item active oe_custom_bg oe_img_bg"
                              style="background-image: url('/theme_clarico_vega/static/src/img/snippets/slider_styles/style_7/1920_800.jpg');"
                              data-name="Slide">
-                            <div class="container">
-                                <div class="row content">
-                                    <div class="carousel-content col-lg-5 col-md-8 te_t_slider_sm_content"
-                                         style="animation: animatezoom 0.8s ease-in both;animation-delay: 1s;">
-                                        <div class="s_title pb8" data-name="Title">
-                                            <h2 class="te_t_slider_7_title o_default_snippet_text">My Heading
-                                                2
-                                            </h2>
-                                        </div>
-                                        <p class="carousel_content o_default_snippet_text">
-                                            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,
-                                            consectetur,
-                                            adipisci velit abil mutoi sovali uomil mitum.
-                                        </p>
-                                        <div class="s_btn text-left pt16 pb16 mt32" data-name="Buttons">
-                                            <a href="/contactus"
-                                               class="btn btn-primary te_theme_button o_default_snippet_text">
-                                                Know more
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<!--                            <div class="container">-->
+<!--                                <div class="row content">-->
+<!--                                    <div class="carousel-content col-lg-5 col-md-8 te_t_slider_sm_content"-->
+<!--                                         style="animation: animatezoom 0.8s ease-in both;animation-delay: 1s;">-->
+<!--                                        <div class="s_title pb8" data-name="Title">-->
+<!--                                            <h2 class="te_t_slider_7_title o_default_snippet_text">My Heading-->
+<!--                                                2-->
+<!--                                            </h2>-->
+<!--                                        </div>-->
+<!--                                        <p class="carousel_content o_default_snippet_text">-->
+<!--                                            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,-->
+<!--                                            consectetur,-->
+<!--                                            adipisci velit abil mutoi sovali uomil mitum.-->
+<!--                                        </p>-->
+<!--                                        <div class="s_btn text-left pt16 pb16 mt32" data-name="Buttons">-->
+<!--                                            <a href="/contactus"-->
+<!--                                               class="btn btn-primary te_theme_button o_default_snippet_text">-->
+<!--                                                Know more-->
+<!--                                            </a>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
                         <div class="carousel-item oe_custom_bg oe_img_bg"
                              style="background-image: url('/theme_clarico_vega/static/src/img/snippets/slider_styles/style_7/1920_800.jpg');"
                              data-name="Slide">
-                            <div class="container">
-                                <div class="row content">
-                                    <div class="carousel-content col-lg-5 col-md-8 te_t_slider_sm_content"
-                                         style="animation: animatezoom 0.8s ease-in both;animation-delay: 1s;">
-                                        <div class="s_title pb8" data-name="Title">
-                                            <h2 class="carousel_heading te_t_slider_7_title o_default_snippet_text">
-                                                My Heading 2
-                                            </h2>
-                                        </div>
-                                        <p class="carousel_content o_default_snippet_text">
-                                            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,
-                                            consectetur,
-                                            adipisci velit abil mutoi sovali uomil mitum.
-                                        </p>
-                                        <div class="s_btn text-left pt16 pb16 mt32" data-name="Buttons">
-                                            <a href="/contactus"
-                                               class="btn btn-primary te_theme_button o_default_snippet_text">
-                                                Know more
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<!--                            <div class="container">-->
+<!--                                <div class="row content">-->
+<!--                                    <div class="carousel-content col-lg-5 col-md-8 te_t_slider_sm_content"-->
+<!--                                         style="animation: animatezoom 0.8s ease-in both;animation-delay: 1s;">-->
+<!--                                        <div class="s_title pb8" data-name="Title">-->
+<!--                                            <h2 class="carousel_heading te_t_slider_7_title o_default_snippet_text">-->
+<!--                                                My Heading 2-->
+<!--                                            </h2>-->
+<!--                                        </div>-->
+<!--                                        <p class="carousel_content o_default_snippet_text">-->
+<!--                                            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,-->
+<!--                                            consectetur,-->
+<!--                                            adipisci velit abil mutoi sovali uomil mitum.-->
+<!--                                        </p>-->
+<!--                                        <div class="s_btn text-left pt16 pb16 mt32" data-name="Buttons">-->
+<!--                                            <a href="/contactus"-->
+<!--                                               class="btn btn-primary te_theme_button o_default_snippet_text">-->
+<!--                                                Know more-->
+<!--                                            </a>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
                         <div class="carousel-control-prev" data-target="#myCarousel1574945515214"
                              data-slide="prev" role="img" aria-label="Previous" title="Previous">
